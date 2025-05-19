@@ -9,8 +9,7 @@ import UIKit
 
 class MainViewController: UIViewController {
     
-    
-    
+    var memoView = MainView()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -21,12 +20,32 @@ class MainViewController: UIViewController {
         
     }
     
+    
     private func defaultSetting() {
-        view = MainView()
+        
         view.backgroundColor = .white
+        memoViewSetting()
         navigationBarSetting()
         
         
+    }
+    
+    private func memoViewSetting() {
+        view.addSubview(memoView)
+        
+        memoView.backgroundColor = UIColor(red: 0.96, green: 0.84, blue: 0.28, alpha: 1.00)
+        memoView.layer.cornerRadius = 30
+        memoView.layer.maskedCorners = CACornerMask(arrayLiteral: .layerMinXMinYCorner, .layerMaxXMinYCorner)
+        memoView.clipsToBounds = true
+        
+        memoView.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            memoView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
+            memoView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
+            memoView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            memoView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -10)
+        ])
     }
     
     

@@ -20,6 +20,12 @@ class MainView: UIView {
         return tf
     }()
     
+    var betweenLine: UIView = {
+        let view = UIView()
+        view.backgroundColor = .white
+        return view
+    }()
+    
     var memoContents: UITextView = {
        let tv = UITextView()
         tv.textColor = .black
@@ -45,20 +51,26 @@ class MainView: UIView {
     private func setupUI() {
         self.addSubview(memoTitle)
         self.addSubview(memoContents)
-        
+        self.addSubview(betweenLine)
         memoTitle.translatesAutoresizingMaskIntoConstraints = false
+        betweenLine.translatesAutoresizingMaskIntoConstraints = false
         memoContents.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
             memoTitle.heightAnchor.constraint(equalToConstant: 30),
             memoTitle.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: 10),
-            memoTitle.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            memoTitle.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            memoTitle.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 15),
+            memoTitle.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -15),
             
-            memoContents.topAnchor.constraint(equalTo: memoTitle.bottomAnchor, constant: 10),
-            memoContents.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            memoContents.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            memoContents.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -10)
+            betweenLine.heightAnchor.constraint(equalToConstant: 1),
+            betweenLine.topAnchor.constraint(equalTo: memoTitle.bottomAnchor, constant: 5),
+            betweenLine.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 15),
+            betweenLine.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -15),
+            
+            memoContents.topAnchor.constraint(equalTo: betweenLine.bottomAnchor, constant: 5),
+            memoContents.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 15),
+            memoContents.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -15),
+            memoContents.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: 0)
             ])
     }
     
