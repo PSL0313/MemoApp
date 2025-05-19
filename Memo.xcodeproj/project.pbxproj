@@ -19,6 +19,7 @@
 		CC53AF712DDA450A00EC3305 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC53AF652DDA450A00EC3305 /* MainView.swift */; };
 		CC53AF722DDA450A00EC3305 /* FirstConnectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC53AF682DDA450A00EC3305 /* FirstConnectionViewController.swift */; };
 		CC53AF732DDA450A00EC3305 /* ListView - TableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC53AF662DDA450A00EC3305 /* ListView - TableViewCell.swift */; };
+		CC9A42B62DDB290300605265 /* PlaceholderTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC9A42B52DDB28F600605265 /* PlaceholderTextView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -55,6 +56,7 @@
 		CC53AF692DDA450A00EC3305 /* MainViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
 		CC53AF6A2DDA450A00EC3305 /* ListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListViewController.swift; sourceTree = "<group>"; };
 		CC53AF6B2DDA450A00EC3305 /* UsersViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsersViewController.swift; sourceTree = "<group>"; };
+		CC9A42B52DDB28F600605265 /* PlaceholderTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceholderTextView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -120,6 +122,7 @@
 			children = (
 				CC53AF502DDA450900EC3305 /* AppDelegate.swift */,
 				CC53AF582DDA450900EC3305 /* SceneDelegate.swift */,
+				CC9A42B42DDB28DB00605265 /* subClassObject */,
 				CC53AF742DDA469E00EC3305 /* Models */,
 				CC53AF672DDA450A00EC3305 /* Views */,
 				CC53AF6C2DDA450A00EC3305 /* Controllers */,
@@ -157,6 +160,14 @@
 				CC53AF572DDA450900EC3305 /* Memo.xcdatamodeld */,
 			);
 			path = Models;
+			sourceTree = "<group>";
+		};
+		CC9A42B42DDB28DB00605265 /* subClassObject */ = {
+			isa = PBXGroup;
+			children = (
+				CC9A42B52DDB28F600605265 /* PlaceholderTextView.swift */,
+			);
+			path = subClassObject;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -303,6 +314,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				CC53AF602DDA450900EC3305 /* AppDelegate.swift in Sources */,
+				CC9A42B62DDB290300605265 /* PlaceholderTextView.swift in Sources */,
 				CC53AF6D2DDA450A00EC3305 /* FirstConnectionView.swift in Sources */,
 				CC53AF6E2DDA450A00EC3305 /* ListViewController.swift in Sources */,
 				CC53AF6F2DDA450A00EC3305 /* MainViewController.swift in Sources */,

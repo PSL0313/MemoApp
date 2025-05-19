@@ -23,6 +23,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // 탭바컨트롤러의 생성
         let tabBarVC = UITabBarController()
         
+        // 탭바 속성
+        let appearance = UITabBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = UIColor(red: 0.98, green: 0.95, blue: 0.91, alpha: 1.0)
+        UITabBar.appearance().standardAppearance = appearance
+        UITabBar.appearance().scrollEdgeAppearance = appearance
+        
         
         // 첫번째 화면은 네비게이션컨트롤러로 만들기 (기본루트뷰 설정)
         let vc1 = UINavigationController(rootViewController: MainViewController())
@@ -31,9 +38,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
         
         // 탭바 이름들 설정
-        vc1.title = "Memo"
-        vc2.title = "목록"
-        vc3.title = "Info"
+//        vc1.title = "Memo"
+//        vc2.title = "목록"
+//        vc3.title = "Info"
 
         
         // 탭바로 사용하기 위한 뷰 컨트롤러들 설정

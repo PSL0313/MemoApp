@@ -9,32 +9,33 @@ import UIKit
 
 class MainView: UIView {
 
-    var memoTitle: UITextField = {
-        let tf = UITextField()
-        tf.placeholder = "제목"
-        tf.textColor = .black
-        tf.textAlignment = .left
-        tf.font = .boldSystemFont(ofSize: 17)
-        tf.backgroundColor = .clear
-        tf.clearButtonMode = .always
-        return tf
+    let memoTitle: UITextField = {
+        let textField = UITextField()
+        textField.placeholder = "제목을 입력하세요"
+        textField.font = UIFont.systemFont(ofSize: 20, weight: .bold)
+        textField.clearButtonMode = .always
+        textField.backgroundColor = .white
+        textField.layer.cornerRadius = 12
+        textField.layer.masksToBounds = true
+        textField.setLeftPadding(12)  // 커스텀 extension 아래 참고
+        textField.translatesAutoresizingMaskIntoConstraints = false
+        return textField
     }()
     
-    var betweenLine: UIView = {
-        let view = UIView()
-        view.backgroundColor = .white
-        return view
-    }()
-    
-    var memoContents: UITextView = {
-       let tv = UITextView()
-        tv.textColor = .black
-        tv.textAlignment = .left
-        tv.font = .systemFont(ofSize: 13)
-        tv.backgroundColor = .clear
-        tv.text.append("내용 입력하기")
-        tv.textColor = .lightGray
-        return tv
+    var memoContents: PlaceholderTextView = {
+        let textView = PlaceholderTextView()
+        textView.placeholder = "  내용 입력하기"
+        textView.textColor = .black
+        textView.textAlignment = .left
+        textView.alwaysBounceVertical = true
+        textView.keyboardDismissMode = .interactive
+        textView.font = .systemFont(ofSize: 13)
+        textView.backgroundColor = .white
+        textView.layer.cornerRadius = 12
+        textView.layer.masksToBounds = true
+        textView.textContainerInset = UIEdgeInsets(top: 12, left: 8, bottom: 12, right: 8)
+        textView.translatesAutoresizingMaskIntoConstraints = false
+        return textView
     }()
 
     
@@ -49,30 +50,29 @@ class MainView: UIView {
     
     
     private func setupUI() {
-        self.addSubview(memoTitle)
-        self.addSubview(memoContents)
-        self.addSubview(betweenLine)
-        memoTitle.translatesAutoresizingMaskIntoConstraints = false
-        betweenLine.translatesAutoresizingMaskIntoConstraints = false
-        memoContents.translatesAutoresizingMaskIntoConstraints = false
+        backgroundColor = .clear
+        
+        addSubview(memoTitle)
+        addSubview(memoContents)
         
         NSLayoutConstraint.activate([
-            memoTitle.heightAnchor.constraint(equalToConstant: 30),
-            memoTitle.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: 10),
-            memoTitle.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 15),
-            memoTitle.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -15),
+            memoTitle.topAnchor.constraint(equalTo: topAnchor, constant: 16),
+            memoTitle.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
+            memoTitle.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
+            memoTitle.heightAnchor.constraint(equalToConstant: 40),
             
-            betweenLine.heightAnchor.constraint(equalToConstant: 1),
-            betweenLine.topAnchor.constraint(equalTo: memoTitle.bottomAnchor, constant: 5),
-            betweenLine.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 15),
-            betweenLine.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -15),
-            
-            memoContents.topAnchor.constraint(equalTo: betweenLine.bottomAnchor, constant: 5),
-            memoContents.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 15),
-            memoContents.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -15),
-            memoContents.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: 0)
-            ])
+            memoContents.topAnchor.constraint(equalTo: memoTitle.bottomAnchor, constant: 12),
+            memoContents.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
+            memoContents.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
+            memoContents.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -16)
+        ])
     }
-    
+}
 
+extension UITextField {
+    func setLeftPadding(_ amount: CGFloat) {
+        let paddingView = UIView(frame: CGRect(x: 0, y: 0, width: amount, height: self.frame.height))
+        self.leftView = paddingView
+        self.leftViewMode = .always
+    }
 }
