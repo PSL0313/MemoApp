@@ -11,63 +11,104 @@ import CoreData
 class MemoListViewController: UIViewController {
     
     private let tableView = UITableView()
-    private let filterStackView = UIStackView()
     private var allMemos: [MemoEntity] = []
     private var filteredMemos: [MemoEntity] = []
-
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        loadMemos()
-    }
-
-    private func loadMemos() {
-        allMemos = MemoDataManager.shared.fetchMemos()
-        tableView.reloadData()
-    }
     
-    //var memoArray: [MemoContents] = []
-    // MARK: TestCode - 데이터 모델 미확정으로 우선 임시 데이터
-    var memoArray: [String] = []
+    // 필터 버튼
+    private let buttonTitles = ["전체", "일반 메모", "시간", "위치"]
     
+    private lazy var filterButtons: [UIButton] = {
+        buttonTitles.enumerated().map { index, title in
+            let button = UIButton(type: .system)
+            button.setTitle(title, for: .normal)
+            button.tag = index
+            button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
+            button.setTitleColor(.systemBlue, for: .normal)
+            button.backgroundColor = UIColor.systemGray6
+            button.layer.cornerRadius = 8
+            button.layer.masksToBounds = true
+            button.addTarget(self, action: #selector(filterButtonTapped(_:)), for: .touchUpInside)
+            return button
+        }
+    }()
+    
+    // 스택뷰: 필터버튼 네개
+    private let filterStackView: UIStackView = {
+        let stackView = UIStackView()
+        stackView.axis = .horizontal
+        stackView.spacing = 8
+        stackView.distribution = .fillEqually
+        return stackView
+    }()
+
+
+    
+    // 선택 버튼 눌렀을 때 뜨는 뷰
+    private let actionBarView: UIView = {
+        let view = UIView()
+        view.backgroundColor = UIColor.clear
+        view.alpha = 0 // 처음엔 안 보이게
+        view.isUserInteractionEnabled = false
+        return view
+    }()
+    
+    // 액션바뷰 안에 넣을 버튼
+    private let deleteButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("삭제", for: .normal)
+        button.setTitleColor(.systemRed, for: .normal)
+        button.titleLabel?.font = .boldSystemFont(ofSize: 16)
+        button.backgroundColor = .lightGray
+        button.layer.cornerRadius = 8
+        button.clipsToBounds = true
+        button.addTarget(self, action: #selector(deleteSelectedMemos), for: .touchUpInside)
+        return button
+    }()
+    
+    // MARK: - viewDidLoad
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        delegateSetting()
+        tableViewSetting()
         setUI()
         navigationBarSetting()
     }
     
-    private func delegateSetting() {
+    // MARK: - viewWillAppear
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        fetchMemos()
+        
+    }
+    
+    // MARK: - 메서드
+    
+    private func tableViewSetting() {
         tableView.dataSource = self
         tableView.delegate = self
+        
+        tableView.allowsMultipleSelectionDuringEditing = true
     }
     
     // UI 설정 메서드들을 실행하는 메서드
     private func setUI() {
         view.backgroundColor = UIColor(red: 0.99, green: 0.97, blue: 0.94, alpha: 1.0)
-        // 1. 필터 스택뷰
-        let titles = ["전체", "일반", "시간", "위치"]
-        let buttons = titles.enumerated().map { index, title -> UIButton in
-            let button = UIButton(type: .system)
-            button.setTitle(title, for: .normal)
-            button.tag = index
-            button.layer.cornerRadius = 8
-            button.layer.masksToBounds = true
-            button.clipsToBounds = true
-            button.addTarget(self, action: #selector(filterButtonTapped(_:)), for: .touchUpInside)
-            return button
-        }
-        filterStackView.axis = .horizontal
-        filterStackView.distribution = .fillEqually
-        filterStackView.spacing = 8
-        buttons.forEach { filterStackView.addArrangedSubview($0) }
+        
 
         filterStackView.translatesAutoresizingMaskIntoConstraints = false
         tableView.translatesAutoresizingMaskIntoConstraints = false
+        actionBarView.translatesAutoresizingMaskIntoConstraints = false
+        deleteButton.translatesAutoresizingMaskIntoConstraints = false
+        
+        filterButtons.forEach { button in
+            filterStackView.addArrangedSubview(button)
+        }
 
         view.addSubview(filterStackView)
         view.addSubview(tableView)
-
+        view.addSubview(actionBarView)
+        actionBarView.addSubview(deleteButton)
+        
         tableView.dataSource = self
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "MemoCell")
 
@@ -80,7 +121,19 @@ class MemoListViewController: UIViewController {
             tableView.topAnchor.constraint(equalTo: filterStackView.bottomAnchor, constant: 8),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+            tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: 8),
+            
+//            actionBarView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: ),
+            actionBarView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -10),
+            actionBarView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -10),
+            actionBarView.heightAnchor.constraint(equalToConstant: 53),
+            actionBarView.widthAnchor.constraint(equalToConstant: 135),
+
+            deleteButton.centerXAnchor.constraint(equalTo: actionBarView.centerXAnchor),
+            deleteButton.centerYAnchor.constraint(equalTo: actionBarView.centerYAnchor),
+            deleteButton.heightAnchor.constraint(equalToConstant: 53),
+            deleteButton.widthAnchor.constraint(equalToConstant: 135),
+            
         ])
     }
     
@@ -91,7 +144,7 @@ class MemoListViewController: UIViewController {
         case 1:
             filteredMemos = allMemos.filter { memo in
                 let noTimeAlarm = memo.alertTime == nil
-                let noLocation = (memo.latitude ?? 0) == 0 && (memo.longitude ?? 0) == 0
+                let noLocation = memo.latitude == 0 && memo.longitude == 0
                 return noTimeAlarm && noLocation
             }
         case 2:
@@ -105,15 +158,9 @@ class MemoListViewController: UIViewController {
     }
     
     private func fetchMemos() {
-        let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
-        let request: NSFetchRequest<MemoEntity> = MemoEntity.fetchRequest()
-        do {
-            allMemos = try context.fetch(request)
-            filteredMemos = allMemos
-            tableView.reloadData()
-        } catch {
-            print("❌ 메모 불러오기 실패: \(error)")
-        }
+        allMemos = MemoDataManager.shared.fetchMemos()
+        filteredMemos = allMemos
+        tableView.reloadData()
     }
     
     // 네비게이션바 설정
@@ -132,39 +179,83 @@ class MemoListViewController: UIViewController {
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addTapped))
         navigationItem.rightBarButtonItem?.tintColor = .black
         
-        navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .trash, target: self, action: #selector(clearTapped))
-        navigationItem.leftBarButtonItem?.tintColor = .red
+        navigationItem.leftBarButtonItem = UIBarButtonItem(
+            title: "선택",
+            style: .plain,
+            target: self,
+            action: #selector(selectButtonTapped)
+        )
+        navigationItem.leftBarButtonItem?.tintColor = .brown
     }
     
     
     @objc func addTapped() {
         
         let nextVC = MainViewController()
-//        nextVC.memo = self.currentMemo   예: 메모 데이터 전달
         nextVC.isFromList = true
         navigationController?.pushViewController(nextVC, animated: true)
         
         
     }
     
-    @objc func clearTapped() {
+    @objc private func selectButtonTapped() {
+        let isEditing = tableView.isEditing
+        tableView.setEditing(!isEditing, animated: true)
         
+        print("isEditing 상태: \(isEditing)")
+
+        navigationItem.leftBarButtonItem?.title = isEditing ? "선택" : "취소"
+
+        if isEditing {
+            // 선택 모드 종료 → 숨기기
+            UIView.animate(withDuration: 0.25) {
+                self.actionBarView.alpha = 0
+            }
+            self.actionBarView.isUserInteractionEnabled = false
+        } else {
+            // 선택 모드 시작 → 보이기
+            UIView.animate(withDuration: 0.25) {
+                self.actionBarView.alpha = 1
+            }
+            self.actionBarView.isUserInteractionEnabled = true
+        }
     }
-    
+
+    @objc private func deleteSelectedMemos() {
+        guard let selectedRows = tableView.indexPathsForSelectedRows else { return }
+
+        // indexPath를 내림차순으로 정렬 (안그러면 삭제 중 index 오류 날 수 있음)
+        let sortedRows = selectedRows.sorted(by: { $0.row > $1.row })
+
+        for indexPath in sortedRows {
+            let memo = allMemos[indexPath.row]
+            
+            // 1. CoreData에서 삭제
+            let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+            context.delete(memo)
+            
+            // 2. 로컬 배열에서 삭제
+            allMemos.remove(at: indexPath.row)
+        }
+
+        // 3. 저장 및 UI 갱신
+        (UIApplication.shared.delegate as! AppDelegate).saveContext()
+        tableView.deleteRows(at: sortedRows, with: .automatic)
+        selectButtonTapped()
+    }
     
 
 }
 
-// MARK: - 확장
-// 데이터를 받아오는 로직 구현 후 로직에 맞게 수정 필요
+// MARK: - 확장(UITableViewDataSource, UITableViewDelegate)
 extension MemoListViewController: UITableViewDataSource, UITableViewDelegate {
     // UITableViewDataSource
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return allMemos.count
+        return filteredMemos.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let memo = allMemos[indexPath.row]
+        let memo = filteredMemos[indexPath.row]
         let cell = tableView.dequeueReusableCell(withIdentifier: "MemoCell", for: indexPath)
         cell.textLabel?.text = memo.title
         return cell
@@ -173,11 +264,15 @@ extension MemoListViewController: UITableViewDataSource, UITableViewDelegate {
     // UITableViewDelegate
     // 셀 선택시 실행되는 메서드
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        if tableView.isEditing {
+            // ✅ 선택 모드일 때는 아무 동작 안 해도 됨 (선택만 유지됨)
+            return
+        }
+
+        // ✅ 일반 모드일 때만 화면 전환
         let selectedMemo = allMemos[indexPath.row]
-
-        let detailVC = ListDetailViewController() // 네가 만든 상세 뷰컨트롤러
-        detailVC.memo = selectedMemo          // ✅ 데이터 넘기기
-
+        let detailVC = ListDetailViewController()
+        detailVC.memo = selectedMemo
         navigationController?.pushViewController(detailVC, animated: true)
     }
     

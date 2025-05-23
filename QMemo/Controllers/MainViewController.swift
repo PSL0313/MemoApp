@@ -19,6 +19,8 @@ class MainViewController: UIViewController {
     // 메인화면 == false로 사용, 다른 곳에서 재사용하는 경우 false로 사용
     var isFromList: Bool = false
     
+    
+    // MARK: - viewDidLoad()
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -28,6 +30,7 @@ class MainViewController: UIViewController {
         
     }
     
+    // MARK: - viewDidAppear
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
@@ -81,15 +84,6 @@ class MainViewController: UIViewController {
         navigationController?.navigationBar.scrollEdgeAppearance = appearance
         navigationItem.title = "메모"
         
-//        //왼쪽 버튼만 추가
-//        navigationItem.leftBarButtonItem = UIBarButtonItem(
-//            image: UIImage(systemName: "arrow.counterclockwise"),
-//            style: .plain,
-//            target: self,
-//            action: #selector(clearTapped)
-//        )
-//        navigationItem.leftBarButtonItem?.tintColor = .red
-        
         let backButton = UIBarButtonItem(
             image: UIImage(systemName: "chevron.left"),
             style: .plain,
@@ -127,7 +121,11 @@ class MainViewController: UIViewController {
         } else {
             navigationItem.leftBarButtonItems = [clearButton]
         }
-        navigationItem.leftBarButtonItems?.forEach { $0.tintColor = .brown }
+        
+        backButton.tintColor = .brown
+        clearButton.tintColor = .red
+        
+//        navigationItem.leftBarButtonItems?.forEach { $0.tintColor = .brown }
         
     }
     
@@ -136,8 +134,8 @@ class MainViewController: UIViewController {
     }
     
     @objc func saveButtonTapped() {
-        guard let title = memoView.memoTitle.text, //!title.isEmpty,
-              let content = memoView.memoContents.text/*, !content.isEmpty*/ else {
+        guard let title = memoView.memoTitle.text, !title.isEmpty,
+              let content = memoView.memoContents.text, !content.isEmpty else {
             print("❌ 제목 또는 내용이 비어 있음")
             return
         }
@@ -153,6 +151,9 @@ class MainViewController: UIViewController {
         
         saveAndClearButtonTapped()
         showToast(message: "저장 완료")
+        if isFromList == true {
+            navigationController?.popViewController(animated: true)
+        }
     }
     
     private func saveAndClearButtonTapped() {
@@ -184,8 +185,9 @@ class MainViewController: UIViewController {
     }
     
     // 토스트 알림
-    private func showToast(message: String, duration: Double = 2.0) {
-        let toastLabel = UILabel()
+    func showToast(message: String, duration: Double = 2.0) {
+        let toastLabel = PaddingLabel() // ✅ 기존 UILabel 대신
+        toastLabel.inset = UIEdgeInsets(top: 7, left: 12, bottom: 7, right: 12)
         toastLabel.text = message
         toastLabel.textColor = .white
         toastLabel.textAlignment = .center
@@ -195,22 +197,23 @@ class MainViewController: UIViewController {
         toastLabel.layer.cornerRadius = 12
         toastLabel.clipsToBounds = true
         toastLabel.alpha = 0.0
-
-        // 사이즈 계산
-        let maxWidth: CGFloat = view.frame.width * 0.6
-        let textSize = toastLabel.sizeThatFits(CGSize(width: maxWidth, height: CGFloat.greatestFiniteMagnitude))
-        let width = min(maxWidth, textSize.width + 20)
-        let height = textSize.height + 14
-
-        // 위치: 화면 아래쪽 중앙 위
-        toastLabel.frame = CGRect(
-            x: (view.frame.width - width) / 2,
-            y: view.frame.height * 0.75,
-            width: width,
-            height: height
-        )
+        toastLabel.translatesAutoresizingMaskIntoConstraints = false
 
         view.addSubview(toastLabel)
+
+        // 💡 오토레이아웃 제약
+        let maxWidth = view.frame.width * 0.6
+        NSLayoutConstraint.activate([
+            toastLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            toastLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 80),
+            toastLabel.widthAnchor.constraint(lessThanOrEqualToConstant: maxWidth),
+            toastLabel.leadingAnchor.constraint(greaterThanOrEqualTo: view.leadingAnchor, constant: 20),
+            toastLabel.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -20)
+        ])
+
+        // ⚡️ 필수: 내부 여백을 위해 contentInsets 대신 패딩 추가 (내부 사용 시)
+        toastLabel.setContentHuggingPriority(.required, for: .vertical)
+        toastLabel.setContentCompressionResistancePriority(.required, for: .vertical)
 
         // 애니메이션
         UIView.animate(withDuration: 0.3, animations: {

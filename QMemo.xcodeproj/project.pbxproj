@@ -10,7 +10,6 @@
 		CCB540652DDD4AED00D44BFD /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCB5405B2DDD4AED00D44BFD /* AppDelegate.swift */; };
 		CCB540662DDD4AED00D44BFD /* QMemo.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = CCB540602DDD4AED00D44BFD /* QMemo.xcdatamodeld */; };
 		CCB540672DDD4AED00D44BFD /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCB540612DDD4AED00D44BFD /* SceneDelegate.swift */; };
-		CCB540682DDD4AED00D44BFD /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCB540622DDD4AED00D44BFD /* ViewController.swift */; };
 		CCB5406B2DDD4AED00D44BFD /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CCB5405F2DDD4AED00D44BFD /* LaunchScreen.storyboard */; };
 		CCB540782DDD4B0D00D44BFD /* FirstConnectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCB540722DDD4B0D00D44BFD /* FirstConnectionViewController.swift */; };
 		CCB540792DDD4B0D00D44BFD /* ListDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCB540752DDD4B0D00D44BFD /* ListDetailViewController.swift */; };
@@ -28,6 +27,7 @@
 		CCB6A9FE2DDDA9A8007520F0 /* MemoEntity+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCB6A9FA2DDDA9A8007520F0 /* MemoEntity+CoreDataClass.swift */; };
 		CCB6A9FF2DDDA9A8007520F0 /* MemoEntity+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCB6A9FB2DDDA9A8007520F0 /* MemoEntity+CoreDataProperties.swift */; };
 		CCB6AA022DDDAB47007520F0 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CCB5405C2DDD4AED00D44BFD /* Assets.xcassets */; };
+		CCEF92C52DDED6670039C2BA /* PaddingLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCEF92C42DDED64E0039C2BA /* PaddingLabel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -56,7 +56,6 @@
 		CCB5405D2DDD4AED00D44BFD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		CCB5405E2DDD4AED00D44BFD /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		CCB540612DDD4AED00D44BFD /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
-		CCB540622DDD4AED00D44BFD /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		CCB540642DDD4AED00D44BFD /* QMemo.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = QMemo.xcdatamodel; sourceTree = "<group>"; };
 		CCB5406C2DDD4B0D00D44BFD /* PlaceholderTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceholderTextView.swift; sourceTree = "<group>"; };
 		CCB5406E2DDD4B0D00D44BFD /* FirstConnectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirstConnectionView.swift; sourceTree = "<group>"; };
@@ -70,6 +69,7 @@
 		CCB540882DDD4EC600D44BFD /* MemoDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoDataManager.swift; sourceTree = "<group>"; };
 		CCB6A9FA2DDDA9A8007520F0 /* MemoEntity+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MemoEntity+CoreDataClass.swift"; sourceTree = "<group>"; };
 		CCB6A9FB2DDDA9A8007520F0 /* MemoEntity+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MemoEntity+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		CCEF92C42DDED64E0039C2BA /* PaddingLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaddingLabel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -142,7 +142,6 @@
 				CCB5405C2DDD4AED00D44BFD /* Assets.xcassets */,
 				CCB5405D2DDD4AED00D44BFD /* Info.plist */,
 				CCB5405F2DDD4AED00D44BFD /* LaunchScreen.storyboard */,
-				CCB540622DDD4AED00D44BFD /* ViewController.swift */,
 			);
 			path = QMemo;
 			sourceTree = "<group>";
@@ -150,6 +149,7 @@
 		CCB5406D2DDD4B0D00D44BFD /* subClassObject */ = {
 			isa = PBXGroup;
 			children = (
+				CCEF92C42DDED64E0039C2BA /* PaddingLabel.swift */,
 				CCB5406C2DDD4B0D00D44BFD /* PlaceholderTextView.swift */,
 			);
 			path = subClassObject;
@@ -342,11 +342,11 @@
 				CCB5407C2DDD4B0D00D44BFD /* MainView.swift in Sources */,
 				CCB5407D2DDD4B0D00D44BFD /* ListView - TableViewCell.swift in Sources */,
 				CCB5408A2DDD4ED500D44BFD /* MemoDataManager.swift in Sources */,
+				CCEF92C52DDED6670039C2BA /* PaddingLabel.swift in Sources */,
 				CCB5407E2DDD4B0D00D44BFD /* MainViewController.swift in Sources */,
 				CCB5407F2DDD4B0D00D44BFD /* UsersViewController.swift in Sources */,
 				CCB540802DDD4B0D00D44BFD /* PlaceholderTextView.swift in Sources */,
 				CCB540672DDD4AED00D44BFD /* SceneDelegate.swift in Sources */,
-				CCB540682DDD4AED00D44BFD /* ViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
