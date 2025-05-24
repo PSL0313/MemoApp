@@ -6,7 +6,7 @@
 //
 
 import UIKit
-import CoreData
+//import CoreData
 
 class MemoListViewController: UIViewController {
     
@@ -71,11 +71,7 @@ class MemoListViewController: UIViewController {
     private let deleteButton: UIButton = {
         let button = UIButton(type: .system)
         button.setImage(UIImage(systemName: "trash"), for: .normal)
-        button.setTitleColor(.systemRed, for: .normal)
-        button.titleLabel?.font = .boldSystemFont(ofSize: 16)
-        button.backgroundColor = .clear
-        button.layer.cornerRadius = 8
-        button.clipsToBounds = true
+        button.tintColor = .red
         button.addTarget(self, action: #selector(deleteSelectedMemos), for: .touchUpInside)
         return button
     }()
@@ -249,14 +245,21 @@ class MemoListViewController: UIViewController {
                 self.scrollToBottom(self.tableView)
             }
         })
+        
+        if !isEditing {
+            updateSelectionCount()
+        }
     }
     
     // 테이블뷰가 맨 아래까지 스크롤한 상태인지 확인하는 메서드
     func isTableViewAtBottom(_ tableView: UITableView) -> Bool {
+        // 내용이 아예 없는 경우 false 반환 -> 내용이 없는 경우에도 true 반환하여 크래시 발생
+        guard tableView.numberOfRows(inSection: 0) > 0 else { return false }
+        
         let contentHeight = tableView.contentSize.height
         let tableViewHeight = tableView.frame.size.height
         let offsetY = tableView.contentOffset.y
-
+        
         return offsetY + tableViewHeight >= contentHeight - 1
     }
     
@@ -274,41 +277,43 @@ class MemoListViewController: UIViewController {
     @objc private func deleteSelectedMemos() {
         print("삭제 버튼 눌림")
         guard let selectedRows = tableView.indexPathsForSelectedRows else { return }
-        
-        let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
-        
+
         let sortedRows = selectedRows.sorted(by: { $0.row > $1.row })
-        
+
         var deletedMemos: [MemoEntity] = []
-        
+
         for indexPath in sortedRows {
-            let memo = filteredMemos[indexPath.row]   // ✅ 여기를 filteredMemos 기준으로
+            let memo = filteredMemos[indexPath.row]   // ✅ 필터링된 기준으로
             deletedMemos.append(memo)
-        }
-        
-        for memo in deletedMemos {
+
+            // ✅ 삭제 전 배열에서 제거 (filtered + all 둘 다)
             if let index = allMemos.firstIndex(of: memo) {
                 allMemos.remove(at: index)
             }
-            if let index = filteredMemos.firstIndex(of: memo) {
-                filteredMemos.remove(at: index) // ✅ filteredMemos에서도 삭제
-            }
-            context.delete(memo)
+            filteredMemos.remove(at: indexPath.row)
         }
-        
-        do {
-            try context.save()
-        } catch {
-            print("❌ 저장 실패: \(error)")
-        }
-        
-        // ✅ filteredMemos 기준 indexPath로 삭제
+
+        // ✅ CoreData 삭제는 매니저에게 맡기기
+        MemoDataManager.shared.deleteMemos(deletedMemos)
+
+        // ✅ 테이블에서 UI 삭제
         tableView.deleteRows(at: sortedRows, with: .automatic)
+
+        // 선택 모드 종료 (바 내리기 등)
         selectButtonTapped()
     }
     
     @objc private func handleMemoSaved() {
         showToast(defaultViewName: view, message: "저장 완료")
+    }
+    
+    private func updateSelectionCount() {
+        let count = tableView.indexPathsForSelectedRows?.count ?? 0
+        if count == 0 {
+            selectedLabel.text = "메모 선태"
+        } else {
+            selectedLabel.text = "\(count)개 선택됨"
+        }
     }
     
 }
@@ -322,7 +327,7 @@ extension MemoListViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return filteredMemos.count
     }
-
+    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let memo = filteredMemos[indexPath.row]
         let cell = tableView.dequeueReusableCell(withIdentifier: "MemoCell", for: indexPath)
@@ -331,13 +336,40 @@ extension MemoListViewController: UITableViewDataSource, UITableViewDelegate {
     }
     
     // UITableViewDelegate
+    // 셀을 오른쪽에서 왼쪽으로 스와이프하면 실행되는 메서드
+    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        
+        let memoToDelete = self.filteredMemos[indexPath.row]  // filteredMemos 기준이 정확함
+        
+        let deleteAction = UIContextualAction(style: .destructive, title: "삭제") { (_, _, completionHandler) in
+            
+            // ✅ CoreData에서 삭제
+            MemoDataManager.shared.deleteMemo(memoToDelete)
+            
+            // ✅ 배열에서 삭제
+            if let indexInAll = self.allMemos.firstIndex(of: memoToDelete) {
+                self.allMemos.remove(at: indexInAll)
+            }
+            self.filteredMemos.remove(at: indexPath.row)
+            
+            // ✅ UI 반영
+            tableView.deleteRows(at: [indexPath], with: .automatic)
+            
+            completionHandler(true)
+        }
+        
+        let config = UISwipeActionsConfiguration(actions: [deleteAction])
+        config.performsFirstActionWithFullSwipe = true
+        return config
+    }
+    
     // 셀 선택시 실행되는 메서드
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if tableView.isEditing {
-            // ✅ 선택 모드일 때는 아무 동작 안 해도 됨 (선택만 유지됨)
+            updateSelectionCount()
             return
         }
-
+        
         // ✅ 일반 모드일 때만 화면 전환
         let selectedMemo = allMemos[indexPath.row]
         let detailVC = ListDetailViewController()
@@ -345,32 +377,9 @@ extension MemoListViewController: UITableViewDataSource, UITableViewDelegate {
         navigationController?.pushViewController(detailVC, animated: true)
     }
     
-    // 셀을 오른쪽에서 왼쪽으로 스와이프하면 실행되는 메서드 
-    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-
-        let deleteAction = UIContextualAction(style: .destructive, title: "삭제") { (_, _, completionHandler) in
-            let memoToDelete = self.allMemos[indexPath.row]
-
-            // 1. Core Data에서 삭제
-            let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
-            context.delete(memoToDelete)
-
-            do {
-                try context.save()
-                // 2. 배열에서도 삭제
-                self.allMemos.remove(at: indexPath.row)
-                // 3. UI에서 삭제
-                tableView.deleteRows(at: [indexPath], with: .automatic)
-            } catch {
-                print("삭제 실패: \(error)")
-            }
-
-            completionHandler(true)
+    func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
+        if tableView.isEditing {
+            updateSelectionCount()
         }
-
-        // 끝까지 밀면 자동 실행되게
-        let config = UISwipeActionsConfiguration(actions: [deleteAction])
-        config.performsFirstActionWithFullSwipe = true
-        return config
     }
 }

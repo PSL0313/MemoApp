@@ -46,9 +46,17 @@ class MemoDataManager {
         }
     }
 
-    // 🗑 메모 삭제
+    // 🗑 메모 한개 삭제
     func deleteMemo(_ memo: MemoEntity) {
         context.delete(memo)
+        saveContext()
+    }
+    
+    // 🗑 메모 다수 삭제
+    func deleteMemos(_ memos: [MemoEntity]) {
+        for memo in memos {
+            context.delete(memo)
+        }
         saveContext()
     }
 

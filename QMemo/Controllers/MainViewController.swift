@@ -7,7 +7,7 @@
 
 import UIKit
 import CoreLocation
-import CoreData
+//import CoreData
 
 class MainViewController: UIViewController {
     
