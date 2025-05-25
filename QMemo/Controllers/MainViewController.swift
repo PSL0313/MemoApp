@@ -9,12 +9,36 @@ import UIKit
 import CoreLocation
 //import CoreData
 
+
 class MainViewController: UIViewController {
     
     var memoView = MainView()
+    
+    var selectedAlertTime: Date? {
+        didSet {
+            if selectedAlertTime != nil {
+                selectedCoordinate = nil
+            }
+            updateAlarmMenuButtonImage()
+        }
+    }
 
-    var selectedAlertTime: Date?
-    var selectedCoordinate: CLLocationCoordinate2D?
+    var selectedCoordinate: CLLocationCoordinate2D? {
+        didSet {
+            if selectedCoordinate != nil {
+                selectedAlertTime = nil
+            }
+            updateAlarmMenuButtonImage()
+        }
+    }
+    
+    private var menuButton: UIBarButtonItem!
+    private lazy var saveButton = UIBarButtonItem(
+        image: UIImage(systemName: "square.and.arrow.down"), // 저장 의미
+        style: .plain,
+        target: self,
+        action: #selector(saveButtonTapped)
+    )
     
     // 메인화면 == false로 사용, 다른 곳에서 재사용하는 경우 false로 사용
     var isFromList: Bool = false
@@ -25,7 +49,13 @@ class MainViewController: UIViewController {
         super.viewDidLoad()
         
         // MARK: TestCode - 첫 접속인 경우 뜨는 화면을 확인하기 위한 키 삭제
-//        UserDefaults.standard.removeObject(forKey: "hasLaunchedBefore")
+        //UserDefaults.standard.removeObject(forKey: "hasLaunchedBefore")
+        
+        // MARK: TestCode - 알람 설정 화면 만드는 중
+//        let vc = AlertTimeViewController()
+//        vc.modalPresentationStyle = .automatic
+//        self.present(vc, animated: true)
+        
         defaultSetting()
         
     }
@@ -84,6 +114,7 @@ class MainViewController: UIViewController {
         navigationController?.navigationBar.scrollEdgeAppearance = appearance
         navigationItem.title = "메모"
         
+        // 버튼
         let backButton = UIBarButtonItem(
             image: UIImage(systemName: "chevron.left"),
             style: .plain,
@@ -104,16 +135,34 @@ class MainViewController: UIViewController {
             target: self,
             action: #selector(saveButtonTapped)
         )
-
-        let alarmButton = UIBarButtonItem(
-            image: UIImage(systemName: "bell"), // 알람 의미
-            style: .plain,
-            target: self,
-            action: #selector(alarmButtonTapped)
-        )
-
+        
+//        //액션
+//        let alertTimeSetAction = UIAction(title: "시간 알림 설정", image: UIImage(systemName: "alarm")) { _ in
+//            print("알람 설정 선택됨")
+//            // 내부 코드 구현
+//            let vc = AlertTimeViewController()
+//            vc.modalPresentationStyle = .automatic
+//            vc.alertTimedelegate = self
+//            self.present(vc, animated: true)
+//            
+//        }
+//        
+//        let coordinateSetAction = UIAction(title: "위치 알림 설정", image: UIImage(systemName: "alarm")) { _ in
+//            print("알람 설정 선택됨")
+//            // 내부 코드 구현
+//            let vc = CoordinateViewController()
+//            vc.modalPresentationStyle = .automatic
+//            self.present(vc, animated: true)
+//        }
+//        
+//        let menu = UIMenu(title: "", children: [alertTimeSetAction, coordinateSetAction])
+//        let menuButton = UIBarButtonItem(image: UIImage(systemName: "bell"), menu: menu)
+        
         // 오른쪽부터 순서대로: 저장 → 알람
-        navigationItem.rightBarButtonItems = [saveButton, alarmButton]
+//        navigationItem.rightBarButtonItems = [saveButton, menuButton]
+        menuButton = UIBarButtonItem(image: UIImage(systemName: "bell.slash"), menu: makeMenu())
+        navigationItem.rightBarButtonItems = [saveButton, menuButton]
+        
         navigationItem.rightBarButtonItems?.forEach { $0.tintColor = .brown }
         
         if isFromList == true {
@@ -123,10 +172,7 @@ class MainViewController: UIViewController {
         }
         
         backButton.tintColor = .brown
-        clearButton.tintColor = .red
-        
-//        navigationItem.leftBarButtonItems?.forEach { $0.tintColor = .brown }
-        
+        clearButton.tintColor = .red   
     }
     
     @objc func backButtonTapped() {
@@ -148,9 +194,10 @@ class MainViewController: UIViewController {
             latitude: selectedCoordinate?.latitude ?? nil,
             longitude: selectedCoordinate?.longitude ?? nil
         )
-        
+        print(selectedAlertTime ?? "no")
         saveAndClearButtonTapped()
         
+        // 리스트뷰커넹서 새로운 메모를 추가하는 경우 노티 보내기
         if isFromList {
             NotificationCenter.default.post(name: .memoSaved, object: nil)
             navigationController?.popViewController(animated: true)
@@ -162,11 +209,9 @@ class MainViewController: UIViewController {
     private func saveAndClearButtonTapped() {
         self.memoView.memoTitle.text = ""
         self.memoView.memoContents.text = ""
+        self.selectedAlertTime = nil
+        self.selectedCoordinate = nil
         self.memoView.memoContents.updatePlaceholderVisibility()
-    }
-    
-    @objc func alarmButtonTapped() {
-        print("alarmButtonTapped")
     }
     
     @objc func clearTapped() {
@@ -187,50 +232,6 @@ class MainViewController: UIViewController {
             present(alert, animated: true, completion: nil)
     }
     
-    // 토스트 알림
-//    func showToast(message: String, duration: Double = 2.0) {
-//        print("showToast 메서드 실행됨")
-//        let toastLabel = PaddingLabel() // ✅ 기존 UILabel 대신
-//        toastLabel.inset = UIEdgeInsets(top: 7, left: 12, bottom: 7, right: 12)
-//        toastLabel.text = message
-//        toastLabel.textColor = .white
-//        toastLabel.textAlignment = .center
-//        toastLabel.font = UIFont.systemFont(ofSize: 14, weight: .medium)
-//        toastLabel.backgroundColor = UIColor.black.withAlphaComponent(0.8)
-//        toastLabel.numberOfLines = 0
-//        toastLabel.layer.cornerRadius = 12
-//        toastLabel.clipsToBounds = true
-//        toastLabel.alpha = 0.0
-//        toastLabel.translatesAutoresizingMaskIntoConstraints = false
-//
-//        view.addSubview(toastLabel)
-//
-//        // 💡 오토레이아웃 제약
-//        let maxWidth = view.frame.width * 0.6
-//        NSLayoutConstraint.activate([
-//            toastLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-//            toastLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 80),
-//            toastLabel.widthAnchor.constraint(lessThanOrEqualToConstant: maxWidth),
-//            toastLabel.leadingAnchor.constraint(greaterThanOrEqualTo: view.leadingAnchor, constant: 20),
-//            toastLabel.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -20)
-//        ])
-//
-//        // ⚡️ 필수: 내부 여백을 위해 contentInsets 대신 패딩 추가 (내부 사용 시)
-//        toastLabel.setContentHuggingPriority(.required, for: .vertical)
-//        toastLabel.setContentCompressionResistancePriority(.required, for: .vertical)
-//
-//        // 애니메이션
-//        UIView.animate(withDuration: 0.3, animations: {
-//            toastLabel.alpha = 1.0
-//        }) { _ in
-//            UIView.animate(withDuration: 0.3, delay: duration, options: .curveEaseOut, animations: {
-//                toastLabel.alpha = 0.0
-//            }) { _ in
-//                toastLabel.removeFromSuperview()
-//            }
-//        }
-//    }
-    
     // 첫 접속인 경우
     private func firstConnection() {
         let vc = FirstConnectionViewController()
@@ -238,7 +239,49 @@ class MainViewController: UIViewController {
         self.present(vc, animated: true)
     }
     
+    // 메뉴버튼의 액션 생성 메서드
+    private func makeMenu() -> UIMenu {
+        let alertTimeSetAction = UIAction(title: "시간 알림 설정", image: UIImage(systemName: "alarm")) { _ in
+            let vc = AlertTimeViewController()
+            vc.modalPresentationStyle = .automatic
+            vc.alertTimedelegate = self
+            self.present(vc, animated: true)
+        }
+        
+        let coordinateSetAction = UIAction(title: "위치 알림 설정", image: UIImage(systemName: "location")) { _ in
+            let vc = CoordinateViewController()
+            vc.modalPresentationStyle = .automatic
+            self.present(vc, animated: true)
+        }
+        
+        return UIMenu(title: "", children: [alertTimeSetAction, coordinateSetAction])
+    }
     
+    // 알람 상태 업데이트 함수 -> 시간, 위치 알람 설정에 따른 버튼 이미지 변경
+    private func updateAlarmMenuButtonImage() {
+        var newImage: UIImage?
+        
+        if selectedAlertTime != nil {
+            newImage = UIImage(systemName: "alarm")
+        } else if selectedCoordinate != nil {
+            newImage = UIImage(systemName: "location")
+        } else {
+            newImage = UIImage(systemName: "bell.slash")
+        }
+        
+
+        // 다시 menu 붙여서 새로 할당해야 함
+        menuButton = UIBarButtonItem(image: newImage, menu: makeMenu())
+        menuButton?.tintColor = .brown
+        saveButton.tintColor = .brown
+        navigationItem.rightBarButtonItems = [saveButton, menuButton]
+    }
 
 }
 
+extension MainViewController: AlertTimeDelegate {
+    func didSelectAlertTime(_ date: Date) {
+        self.selectedAlertTime = date
+        print("알림 시간 설정됨: \(date)")
+    }
+}

@@ -84,6 +84,7 @@ class MemoListViewController: UIViewController {
         setUI()
         navigationBarSetting()
         
+        // 노티피케이션 구독, 셀렉터 등록
         NotificationCenter.default.addObserver(
                 self,
                 selector: #selector(handleMemoSaved),
@@ -113,7 +114,6 @@ class MemoListViewController: UIViewController {
     
     // UI 설정 메서드들을 실행하는 메서드
     private func setUI() {
-//        view.backgroundColor = UIColor(red: 0.99, green: 0.97, blue: 0.94, alpha: 1.0)
         view.backgroundColor = .white
 
         filterStackView.translatesAutoresizingMaskIntoConstraints = false
@@ -293,7 +293,7 @@ class MemoListViewController: UIViewController {
             filteredMemos.remove(at: indexPath.row)
         }
 
-        // ✅ CoreData 삭제는 매니저에게 맡기기
+        // ✅ CoreData 삭제
         MemoDataManager.shared.deleteMemos(deletedMemos)
 
         // ✅ 테이블에서 UI 삭제
@@ -310,10 +310,14 @@ class MemoListViewController: UIViewController {
     private func updateSelectionCount() {
         let count = tableView.indexPathsForSelectedRows?.count ?? 0
         if count == 0 {
-            selectedLabel.text = "메모 선태"
+            selectedLabel.text = "메모 선택"
         } else {
             selectedLabel.text = "\(count)개 선택됨"
         }
+    }
+    
+    private func buttonAddTarget() {
+        
     }
     
 }

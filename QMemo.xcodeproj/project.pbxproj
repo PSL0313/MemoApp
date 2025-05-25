@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		CC7F3BF02DE1BE32002E47A6 /* GlobalFunc.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC7F3BEF2DE1BE2B002E47A6 /* GlobalFunc.swift */; };
+		CC7F3BF32DE1C132002E47A6 /* Notification.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC7F3BF22DE1C125002E47A6 /* Notification.swift */; };
+		CC7F3BF72DE218FD002E47A6 /* AlertTimeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC7F3BF62DE218FD002E47A6 /* AlertTimeViewController.swift */; };
+		CC7F3BF92DE21901002E47A6 /* CoordinateViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC7F3BF82DE21901002E47A6 /* CoordinateViewController.swift */; };
+		CC7F3BFB2DE2F611002E47A6 /* NameSpace.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC7F3BFA2DE2F60B002E47A6 /* NameSpace.swift */; };
 		CCB540652DDD4AED00D44BFD /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCB5405B2DDD4AED00D44BFD /* AppDelegate.swift */; };
 		CCB540662DDD4AED00D44BFD /* QMemo.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = CCB540602DDD4AED00D44BFD /* QMemo.xcdatamodeld */; };
 		CCB540672DDD4AED00D44BFD /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCB540612DDD4AED00D44BFD /* SceneDelegate.swift */; };
@@ -48,6 +53,11 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		CC7F3BEF2DE1BE2B002E47A6 /* GlobalFunc.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalFunc.swift; sourceTree = "<group>"; };
+		CC7F3BF22DE1C125002E47A6 /* Notification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notification.swift; sourceTree = "<group>"; };
+		CC7F3BF62DE218FD002E47A6 /* AlertTimeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertTimeViewController.swift; sourceTree = "<group>"; };
+		CC7F3BF82DE21901002E47A6 /* CoordinateViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoordinateViewController.swift; sourceTree = "<group>"; };
+		CC7F3BFA2DE2F60B002E47A6 /* NameSpace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NameSpace.swift; sourceTree = "<group>"; };
 		CCB5401E2DDD4ABE00D44BFD /* QMemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = QMemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CCB540372DDD4ABE00D44BFD /* QMemoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = QMemoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		CCB540412DDD4ABE00D44BFD /* QMemoUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = QMemoUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -110,6 +120,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		CC7F3BF12DE1C11B002E47A6 /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				CC7F3BFA2DE2F60B002E47A6 /* NameSpace.swift */,
+				CC7F3BF22DE1C125002E47A6 /* Notification.swift */,
+			);
+			path = Helpers;
+			sourceTree = "<group>";
+		};
 		CCB540152DDD4ABE00D44BFD = {
 			isa = PBXGroup;
 			children = (
@@ -135,6 +154,8 @@
 			children = (
 				CCB5405B2DDD4AED00D44BFD /* AppDelegate.swift */,
 				CCB540612DDD4AED00D44BFD /* SceneDelegate.swift */,
+				CC7F3BEF2DE1BE2B002E47A6 /* GlobalFunc.swift */,
+				CC7F3BF12DE1C11B002E47A6 /* Helpers */,
 				CCB5406D2DDD4B0D00D44BFD /* subClassObject */,
 				CCB540812DDD4B6B00D44BFD /* Models */,
 				CCB540712DDD4B0D00D44BFD /* Views */,
@@ -170,6 +191,8 @@
 			children = (
 				CCB540722DDD4B0D00D44BFD /* FirstConnectionViewController.swift */,
 				CCB540732DDD4B0D00D44BFD /* MainViewController.swift */,
+				CC7F3BF62DE218FD002E47A6 /* AlertTimeViewController.swift */,
+				CC7F3BF82DE21901002E47A6 /* CoordinateViewController.swift */,
 				CCB540742DDD4B0D00D44BFD /* ListViewController.swift */,
 				CCB540752DDD4B0D00D44BFD /* ListDetailViewController.swift */,
 				CCB540762DDD4B0D00D44BFD /* UsersViewController.swift */,
@@ -332,7 +355,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				CCB540652DDD4AED00D44BFD /* AppDelegate.swift in Sources */,
+				CC7F3BF72DE218FD002E47A6 /* AlertTimeViewController.swift in Sources */,
 				CCB540662DDD4AED00D44BFD /* QMemo.xcdatamodeld in Sources */,
+				CC7F3BF32DE1C132002E47A6 /* Notification.swift in Sources */,
 				CCB540782DDD4B0D00D44BFD /* FirstConnectionViewController.swift in Sources */,
 				CCB540792DDD4B0D00D44BFD /* ListDetailViewController.swift in Sources */,
 				CCB5407A2DDD4B0D00D44BFD /* ListViewController.swift in Sources */,
@@ -342,10 +367,13 @@
 				CCB5407C2DDD4B0D00D44BFD /* MainView.swift in Sources */,
 				CCB5407D2DDD4B0D00D44BFD /* ListView - TableViewCell.swift in Sources */,
 				CCB5408A2DDD4ED500D44BFD /* MemoDataManager.swift in Sources */,
+				CC7F3BF02DE1BE32002E47A6 /* GlobalFunc.swift in Sources */,
 				CCEF92C52DDED6670039C2BA /* PaddingLabel.swift in Sources */,
 				CCB5407E2DDD4B0D00D44BFD /* MainViewController.swift in Sources */,
 				CCB5407F2DDD4B0D00D44BFD /* UsersViewController.swift in Sources */,
 				CCB540802DDD4B0D00D44BFD /* PlaceholderTextView.swift in Sources */,
+				CC7F3BFB2DE2F611002E47A6 /* NameSpace.swift in Sources */,
+				CC7F3BF92DE21901002E47A6 /* CoordinateViewController.swift in Sources */,
 				CCB540672DDD4AED00D44BFD /* SceneDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

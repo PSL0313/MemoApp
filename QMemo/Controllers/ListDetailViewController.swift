@@ -68,11 +68,6 @@ class ListDetailViewController: UIViewController {
             print("즐겨찾기 선택됨")
             // 내부 코드 구현
         }
-        
-        let shareAction = UIAction(title: "공유하기", image: UIImage(systemName: "square.and.arrow.up")) { _ in
-            print("공유하기 선택됨")
-            // 내부 코드 구현
-        }
 
         let infoAction = UIAction(title: "메모 정보", image: UIImage(systemName: "info.circle")) { _ in
             print("메모 정보정보 선택됨")
@@ -88,7 +83,7 @@ class ListDetailViewController: UIViewController {
             
         }
 
-        let menu = UIMenu(title: "", children: [alarmSettingAction, favoriteMemoAction, shareAction, infoAction, deleteAction])
+        let menu = UIMenu(title: "", children: [alarmSettingAction, favoriteMemoAction, infoAction, deleteAction])
         let menuButton = UIBarButtonItem(image: UIImage(systemName: "ellipsis.circle"), menu: menu)
         menuButton.tintColor = .brown
 

@@ -48,13 +48,14 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         tabBarVC.setViewControllers([vc1, vc2, vc3], animated: false)
         tabBarVC.modalPresentationStyle = .fullScreen
         tabBarVC.tabBar.backgroundColor = .white
+        tabBarVC.tabBar.tintColor = .brown
         
         // 탭바 이미지 설정 (이미지는 애플이 제공하는 것으로 사용)
         guard let items = tabBarVC.tabBar.items else { return }
         items[0].image = UIImage(systemName: "square.and.pencil")
         items[1].image = UIImage(systemName: "folder")
         items[2].image = UIImage(systemName: "person.circle")
-
+        
             
         // 기본루트뷰를 탭바컨트롤러로 설정⭐️⭐️⭐️
         window?.rootViewController = tabBarVC
