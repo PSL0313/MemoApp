@@ -13,6 +13,7 @@ class MemoListViewController: UIViewController {
     private let tableView = UITableView()
     private var allMemos: [MemoEntity] = []
     private var filteredMemos: [MemoEntity] = []
+    private var selectedFilterIndex: Int = 0
     
     private var actionBarBottomConstraint: NSLayoutConstraint!
     private var tableViewBottomConstraint: NSLayoutConstraint!
@@ -72,13 +73,15 @@ class MemoListViewController: UIViewController {
         let button = UIButton(type: .system)
         button.setImage(UIImage(systemName: "trash"), for: .normal)
         button.tintColor = .red
-        button.addTarget(self, action: #selector(deleteSelectedMemos), for: .touchUpInside)
+//        button.addTarget(self, action: #selector(deleteSelectedMemos), for: .touchUpInside)
         return button
     }()
     
     // MARK: - viewDidLoad
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        deleteButton.addTarget(self, action: #selector(deleteSelectedMemos), for: .touchUpInside)
         
         tableViewSetting()
         setUI()
@@ -93,11 +96,21 @@ class MemoListViewController: UIViewController {
             )
     }
     
+    // MARK: - viewDidAppear
+    override func viewDidAppear(_ animated: Bool) {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(fetchMemosAndRefresh),
+            name: .memoUpdated,
+            object: nil
+        )
+    }
+    
     // MARK: - viewWillAppear
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         fetchMemos()
-        
+        applyFilter(index: selectedFilterIndex)
     }
     
     // MARK: - 메서드
@@ -165,7 +178,9 @@ class MemoListViewController: UIViewController {
         ])
     }
     
+    // 필터 버튼의 tag를 기준으로 필터링
     @objc private func filterButtonTapped(_ sender: UIButton) {
+        selectedFilterIndex = sender.tag
         switch sender.tag {
         case 0:
             filteredMemos = allMemos
@@ -184,11 +199,33 @@ class MemoListViewController: UIViewController {
         }
         tableView.reloadData()
     }
+    
+    // 최근에 필터링한 정보를 담은 속성을 기준으로 필터링
+    private func applyFilter(index: Int) {
+        switch index {
+        case 0:
+            filteredMemos = allMemos
+        case 1:
+            filteredMemos = allMemos.filter { memo in
+                memo.alertTime == nil && memo.latitude == 0 && memo.longitude == 0
+            }
+        case 2:
+            filteredMemos = allMemos.filter { $0.alertTime != nil }
+        case 3:
+            filteredMemos = allMemos.filter { $0.latitude != 0 || $0.longitude != 0 }
+        default:
+            filteredMemos = allMemos
+        }
+        tableView.reloadData()
+    }
+    
     // 데이터 받아오기
     private func fetchMemos() {
+//        allMemos = MemoDataManager.shared.fetchMemos()
+//        filteredMemos = allMemos
+//        tableView.reloadData()
         allMemos = MemoDataManager.shared.fetchMemos()
-        filteredMemos = allMemos
-        tableView.reloadData()
+        applyFilter(index: selectedFilterIndex)
     }
     
     // 네비게이션바 설정
@@ -291,6 +328,12 @@ class MemoListViewController: UIViewController {
                 allMemos.remove(at: index)
             }
             filteredMemos.remove(at: indexPath.row)
+            
+            // ✅ 알림 취소 (알림이 설정된 경우에만)
+            if memo.alertTime != nil {
+                let identifier = memo.id?.uuidString ?? ""
+                AlertTimeNotiManager.shared.alertTimeDelete(id: identifier)
+            }
         }
 
         // ✅ CoreData 삭제
@@ -316,8 +359,9 @@ class MemoListViewController: UIViewController {
         }
     }
     
-    private func buttonAddTarget() {
-        
+    @objc private func fetchMemosAndRefresh() {
+        fetchMemos()
+        applyFilter(index: selectedFilterIndex)
     }
     
 }
@@ -373,9 +417,8 @@ extension MemoListViewController: UITableViewDataSource, UITableViewDelegate {
             updateSelectionCount()
             return
         }
-        
-        // ✅ 일반 모드일 때만 화면 전환
-        let selectedMemo = allMemos[indexPath.row]
+
+        let selectedMemo = filteredMemos[indexPath.row] // ✅ 이게 맞음
         let detailVC = ListDetailViewController()
         detailVC.memo = selectedMemo
         navigationController?.pushViewController(detailVC, animated: true)

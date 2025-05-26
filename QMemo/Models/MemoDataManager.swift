@@ -21,9 +21,9 @@ class MemoDataManager {
     }
 
     // 📥 메모 추가
-    func addMemo(title: String, content: String, alertTime: Date? = nil, latitude: Double? = nil, longitude: Double? = nil) {
+    func addMemo(uuid: UUID, title: String, content: String, alertTime: Date? = nil, latitude: Double? = nil, longitude: Double? = nil) {
         let newMemo = MemoEntity(context: context)
-        newMemo.id = UUID()
+        newMemo.id = uuid
         newMemo.title = title
         newMemo.content = content
         newMemo.createdAt = Date()
@@ -61,9 +61,12 @@ class MemoDataManager {
     }
 
     // ✏️ 메모 수정 (title, content 변경 예시)
-    func updateMemo(_ memo: MemoEntity, title: String, content: String) {
+    func updateMemo(_ memo: MemoEntity, title: String, content: String, alertTime: Date? = nil, latitude: Double? = nil, longitude: Double? = nil) {
         memo.title = title
         memo.content = content
+        memo.alertTime = alertTime  // 덮어쓰기 허용
+        memo.latitude = latitude ?? 0
+        memo.longitude = longitude ?? 0
         saveContext()
     }
 
@@ -73,6 +76,19 @@ class MemoDataManager {
             try context.save()
         } catch {
             print("❌ 저장 실패: \(error)")
+        }
+    }
+    
+    // 메모를 아이디로 검색하여 가져옴
+    func fetchMemo(byID id: UUID) -> MemoEntity? {
+        let request: NSFetchRequest<MemoEntity> = MemoEntity.fetchRequest()
+        request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
+        request.fetchLimit = 1
+        do {
+            return try context.fetch(request).first
+        } catch {
+            print("❌ 특정 메모 불러오기 실패: \(error)")
+            return nil
         }
     }
 }

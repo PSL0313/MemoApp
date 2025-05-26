@@ -9,14 +9,15 @@ import UIKit
 
 class ListDetailViewController: UIViewController {
     
+    var memoView = MainView()
+    
     var memo: MemoEntity? {
         didSet {
             memoView.memoTitle.text = memo?.title
             memoView.memoContents.text = memo?.content
+            memoView.memoContents.updatePlaceholderVisibility()
         }
     }
-    
-    var memoView = MainView()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -58,6 +59,18 @@ class ListDetailViewController: UIViewController {
         navigationController?.navigationBar.compactAppearance = appearance
         navigationController?.navigationBar.scrollEdgeAppearance = appearance
         navigationItem.title = "메모"
+        navigationController?.interactivePopGestureRecognizer?.isEnabled = false    // 기본 제스처 비활
+        navigationItem.leftBarButtonItem = UIBarButtonItem(
+            image: UIImage(systemName: "chevron.backward"), //"<" 아이콘
+            style: .plain,
+            target: self,
+            action: #selector(backButtonTapped)
+        )
+        navigationItem.leftBarButtonItem?.title = "뒤로"
+        
+        let edgePanGesture = UIScreenEdgePanGestureRecognizer(target: self, action: #selector(handleCustomSwipeBack(_:)))
+        edgePanGesture.edges = .left
+        view.addGestureRecognizer(edgePanGesture)
         
         let alarmSettingAction = UIAction(title: "알람 수정", image: UIImage(systemName: "alarm")) { _ in
             print("알람 설정 선택됨")
@@ -109,22 +122,56 @@ class ListDetailViewController: UIViewController {
         }
     
     
+    // 삭제?
+//    @objc func clearTapped() {
+//        let alert = UIAlertController(
+//                title: "입력 초기화",
+//                message: "작성 중인 내용을 모두 지우시겠어요?",
+//                preferredStyle: .alert
+//            )
+//
+//            alert.addAction(UIAlertAction(title: "취소", style: .cancel, handler: nil))
+//
+//            alert.addAction(UIAlertAction(title: "지우기", style: .destructive, handler: { _ in
+//                self.memoView.memoTitle.text = ""
+//                self.memoView.memoContents.text = ""
+//                self.memoView.memoContents.updatePlaceholderVisibility()
+//            }))
+//
+//            present(alert, animated: true, completion: nil)
+//    }
     
-    @objc func clearTapped() {
-        let alert = UIAlertController(
-                title: "입력 초기화",
-                message: "작성 중인 내용을 모두 지우시겠어요?",
-                preferredStyle: .alert
-            )
-
-            alert.addAction(UIAlertAction(title: "취소", style: .cancel, handler: nil))
-
-            alert.addAction(UIAlertAction(title: "지우기", style: .destructive, handler: { _ in
-                self.memoView.memoTitle.text = ""
-                self.memoView.memoContents.text = ""
-                self.memoView.memoContents.updatePlaceholderVisibility()
+    @objc private func backButtonTapped() {
+        let currentTitle = memoView.memoTitle.text ?? ""
+        let currentContent = memoView.memoContents.text ?? "" 
+        
+        // 변경사항이 있을 경우 알림창 표시
+        if memoView.memoTitle.text != memo?.title || memoView.memoContents.text != memo?.content {
+            let alert = UIAlertController(title: "변경사항 저장",
+                                          message: "수정된 내용을 저장하시겠습니까?",
+                                          preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "취소", style: .cancel))
+            alert.addAction(UIAlertAction(title: "저장", style: .default, handler: { _ in
+                self.saveChanges(title: currentTitle, content: currentContent)
+                self.navigationController?.popViewController(animated: true)
             }))
+            present(alert, animated: true)
+        } else {
+            // 변경사항 없으면 그냥 pop
+            navigationController?.popViewController(animated: true)
+        }
+    }
+    
+    @objc private func handleCustomSwipeBack(_ gesture: UIScreenEdgePanGestureRecognizer) {
+        if gesture.state == .recognized {
+            backButtonTapped()
+        }
+    }
 
-            present(alert, animated: true, completion: nil)
+    private func saveChanges(title: String, content: String) {
+        guard let memo = memo else { return }
+        MemoDataManager.shared.updateMemo(memo, title: title, content: content)
+        
+        NotificationCenter.default.post(name: .memoUpdated, object: nil)
     }
 }

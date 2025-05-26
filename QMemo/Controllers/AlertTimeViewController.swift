@@ -85,6 +85,7 @@ class AlertTimeViewController: UIViewController {
         view.backgroundColor = NameSpace.ColorSetting.lightBrownColor
         setUI()
         buttonAddTarget()
+//        requestNotificationPermissionIfNeeded()
     }
     
     private func setUI() {
@@ -142,4 +143,35 @@ class AlertTimeViewController: UIViewController {
         print("delegate 있음:", alertTimedelegate != nil)
         dismiss(animated: true)
     }
+    
+    // 알림 권한 설정 요청
+//    private func requestNotificationPermissionIfNeeded() {
+//        // 알림 설정 상태 확인
+//        UNUserNotificationCenter.current().getNotificationSettings { settings in
+//            switch settings.authorizationStatus {
+//            case .notDetermined:
+//                // 아직 한 번도 요청한 적 없는 상태
+//                UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
+//                    if granted {
+//                        print("✅ 알림 권한 허용됨")
+//                    } else {
+//                        print("❌ 알림 권한 거부됨")
+//                    }
+//                }
+//
+//            case .denied:
+//                print("❌ 사용자가 알림을 거부함")
+//                DispatchQueue.main.async {
+//                    // 설정 화면으로 유도하는 alert 등을 보여줄 수 있어
+//                }
+//
+//            case .authorized, .provisional, .ephemeral:
+//                print("✅ 알림 권한 이미 허용됨")
+//
+//            @unknown default:
+//                break
+//            }
+//        }
+//    }
+    
 }

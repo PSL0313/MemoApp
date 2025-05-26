@@ -8,5 +8,14 @@
 import UIKit
 
 extension Notification.Name {
+    // 메모 저장
     static let memoSaved = Notification.Name("memoSaved")
+    
+    // 메모 업데이트
+    static let memoUpdated = Notification.Name("memoUpdated")
+    
+    // 알림 클릭시 
+    static let didReceiveMemoNotification = Notification.Name("didReceiveMemoNotification")
+                                             
 }
+

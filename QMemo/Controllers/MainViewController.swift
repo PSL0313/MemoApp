@@ -22,7 +22,7 @@ class MainViewController: UIViewController {
             updateAlarmMenuButtonImage()
         }
     }
-
+    
     var selectedCoordinate: CLLocationCoordinate2D? {
         didSet {
             if selectedCoordinate != nil {
@@ -48,17 +48,23 @@ class MainViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        // MARK: TestCode - 첫 접속인 경우 뜨는 화면을 확인하기 위한 키 삭제
-        //UserDefaults.standard.removeObject(forKey: "hasLaunchedBefore")
+        // MARK: TestCode - 테스트 메서드
+        testfunc()
         
-        // MARK: TestCode - 알람 설정 화면 만드는 중
-//        let vc = AlertTimeViewController()
-//        vc.modalPresentationStyle = .automatic
-//        self.present(vc, animated: true)
+        
         
         defaultSetting()
         
+        // 옵저버 등록
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleMemoNotification(_:)),
+            name: .didReceiveMemoNotification,
+            object: nil
+        )
     }
+    
+    
     
     // MARK: - viewDidAppear
     override func viewDidAppear(_ animated: Bool) {
@@ -106,7 +112,7 @@ class MainViewController: UIViewController {
     private func navigationBarSetting() {
         // (네비게이션바 설정관련) iOS버전 업데이트 되면서 바뀐 설정⭐️⭐️⭐️
         let appearance = UINavigationBarAppearance()
-//        appearance.configureWithOpaqueBackground()  // 불투명으로
+        //        appearance.configureWithOpaqueBackground()  // 불투명으로
         appearance.backgroundColor = UIColor(red: 0.98, green: 0.95, blue: 0.91, alpha: 1.0)
         navigationController?.navigationBar.tintColor = .blue
         navigationController?.navigationBar.standardAppearance = appearance
@@ -121,7 +127,7 @@ class MainViewController: UIViewController {
             target: self,
             action: #selector(backButtonTapped)  // ← 직접 지정 필요
         )
-
+        
         let clearButton = UIBarButtonItem(
             image: UIImage(systemName: "arrow.counterclockwise"),
             style: .plain,
@@ -136,30 +142,6 @@ class MainViewController: UIViewController {
             action: #selector(saveButtonTapped)
         )
         
-//        //액션
-//        let alertTimeSetAction = UIAction(title: "시간 알림 설정", image: UIImage(systemName: "alarm")) { _ in
-//            print("알람 설정 선택됨")
-//            // 내부 코드 구현
-//            let vc = AlertTimeViewController()
-//            vc.modalPresentationStyle = .automatic
-//            vc.alertTimedelegate = self
-//            self.present(vc, animated: true)
-//            
-//        }
-//        
-//        let coordinateSetAction = UIAction(title: "위치 알림 설정", image: UIImage(systemName: "alarm")) { _ in
-//            print("알람 설정 선택됨")
-//            // 내부 코드 구현
-//            let vc = CoordinateViewController()
-//            vc.modalPresentationStyle = .automatic
-//            self.present(vc, animated: true)
-//        }
-//        
-//        let menu = UIMenu(title: "", children: [alertTimeSetAction, coordinateSetAction])
-//        let menuButton = UIBarButtonItem(image: UIImage(systemName: "bell"), menu: menu)
-        
-        // 오른쪽부터 순서대로: 저장 → 알람
-//        navigationItem.rightBarButtonItems = [saveButton, menuButton]
         menuButton = UIBarButtonItem(image: UIImage(systemName: "bell.slash"), menu: makeMenu())
         navigationItem.rightBarButtonItems = [saveButton, menuButton]
         
@@ -172,7 +154,7 @@ class MainViewController: UIViewController {
         }
         
         backButton.tintColor = .brown
-        clearButton.tintColor = .red   
+        clearButton.tintColor = .red
     }
     
     @objc func backButtonTapped() {
@@ -187,14 +169,29 @@ class MainViewController: UIViewController {
         }
         
         // 선택된 알람 정보가 있다면 넘기기
-        MemoDataManager.shared.addMemo(
-            title: title,
-            content: content,
-            alertTime: selectedAlertTime ?? nil,
-            latitude: selectedCoordinate?.latitude ?? nil,
-            longitude: selectedCoordinate?.longitude ?? nil
-        )
-        print(selectedAlertTime ?? "no")
+        let memoId = UUID()  // 새로운 메모는 항상 UUID 생성
+            let alertTime = selectedAlertTime  // 사용자가 설정한 시간
+
+            // 1. 메모 저장
+            MemoDataManager.shared.addMemo(
+                uuid: memoId,
+                title: title,
+                content: content,
+                alertTime: alertTime
+            )
+
+            // 2. 시간 알람이 설정되어 있다면 알림 등록
+            if let alertTime = alertTime {
+                AlertTimeNotiManager.shared.alertTimeAdd(
+                    id: memoId.uuidString,
+                    title: title,
+                    body: content,
+                    date: alertTime
+                )
+            }
+        
+        
+        
         saveAndClearButtonTapped()
         
         // 리스트뷰커넹서 새로운 메모를 추가하는 경우 노티 보내기
@@ -216,20 +213,20 @@ class MainViewController: UIViewController {
     
     @objc func clearTapped() {
         let alert = UIAlertController(
-                title: "입력 초기화",
-                message: "작성 중인 내용을 모두 지우시겠어요?",
-                preferredStyle: .alert
-            )
-
-            alert.addAction(UIAlertAction(title: "취소", style: .cancel, handler: nil))
-
-            alert.addAction(UIAlertAction(title: "지우기", style: .destructive, handler: { _ in
-                self.memoView.memoTitle.text = ""
-                self.memoView.memoContents.text = ""
-                self.memoView.memoContents.updatePlaceholderVisibility()
-            }))
-
-            present(alert, animated: true, completion: nil)
+            title: "입력 초기화",
+            message: "작성 중인 내용을 모두 지우시겠어요?",
+            preferredStyle: .alert
+        )
+        
+        alert.addAction(UIAlertAction(title: "취소", style: .cancel, handler: nil))
+        
+        alert.addAction(UIAlertAction(title: "지우기", style: .destructive, handler: { _ in
+            self.memoView.memoTitle.text = ""
+            self.memoView.memoContents.text = ""
+            self.memoView.memoContents.updatePlaceholderVisibility()
+        }))
+        
+        present(alert, animated: true, completion: nil)
     }
     
     // 첫 접속인 경우
@@ -269,14 +266,44 @@ class MainViewController: UIViewController {
             newImage = UIImage(systemName: "bell.slash")
         }
         
-
+        
         // 다시 menu 붙여서 새로 할당해야 함
         menuButton = UIBarButtonItem(image: newImage, menu: makeMenu())
         menuButton?.tintColor = .brown
         saveButton.tintColor = .brown
         navigationItem.rightBarButtonItems = [saveButton, menuButton]
     }
-
+    
+    @objc private func handleMemoNotification(_ notification: Notification) {
+        print("노티함수까지는 실행")
+        guard let memoID = notification.userInfo?["memoID"] as? String else { return }
+        
+        if let uuid = UUID(uuidString: memoID),
+           let memo = MemoDataManager.shared.fetchMemo(byID: uuid) {
+            let detailVC = ListDetailViewController()
+            detailVC.memo = memo
+            navigationController?.pushViewController(detailVC, animated: true)
+            print("if문에서 걸러짐")
+        }
+    }
+    
+    // MARK: TestCode - 테스트 함수
+    func testfunc() {
+        // MARK: TestCode - 첫 접속인 경우 뜨는 화면을 확인하기 위한 키 삭제
+        //UserDefaults.standard.removeObject(forKey: "hasLaunchedBefore")
+        
+        // MARK: TestCode - 알람 설정 화면 만드는 중
+//        let vc = AlertTimeViewController()
+//        vc.modalPresentationStyle = .automatic
+//        self.present(vc, animated: true)
+        
+        // MARK: TestCode - 알림 권한 설정(허용 상태인지 확인)
+//        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, _ in
+//            print(granted ? "✅ 알림 허용됨" : "❌ 알림 거부됨")
+//        }
+    }
+    
+    
 }
 
 extension MainViewController: AlertTimeDelegate {

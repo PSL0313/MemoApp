@@ -7,14 +7,15 @@
 
 import UIKit
 import CoreData
+import UserNotifications
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
-
+    
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Override point for customization after application launch.
+        UNUserNotificationCenter.current().delegate = self
         return true
     }
 
@@ -79,3 +80,22 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 }
 
+extension AppDelegate: UNUserNotificationCenterDelegate {
+    func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        didReceive response: UNNotificationResponse,
+        withCompletionHandler completionHandler: @escaping () -> Void
+    ) {
+        let userInfo = response.notification.request.content.userInfo
+
+        if let memoID = userInfo["memoID"] as? String {
+            NotificationCenter.default.post(
+                name: .didReceiveMemoNotification,
+                object: nil,
+                userInfo: ["memoID": memoID]
+            )
+        }
+
+        completionHandler()
+    }
+}
