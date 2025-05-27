@@ -32,6 +32,13 @@ class MainViewController: UIViewController {
         }
     }
     
+    // MARK: - 즐겨찾기 추후 구현
+    var isFavorite: Bool = false {
+        didSet {
+        
+        }
+    }
+    
     private var menuButton: UIBarButtonItem!
     private lazy var saveButton = UIBarButtonItem(
         image: UIImage(systemName: "square.and.arrow.down"), // 저장 의미
@@ -149,6 +156,9 @@ class MainViewController: UIViewController {
         
         if isFromList == true {
             navigationItem.leftBarButtonItems = [backButton, clearButton]
+            let edgePanGesture = UIScreenEdgePanGestureRecognizer(target: self, action: #selector(backButtonTapped))
+            edgePanGesture.edges = .left
+            view.addGestureRecognizer(edgePanGesture)
         } else {
             navigationItem.leftBarButtonItems = [clearButton]
         }
@@ -170,25 +180,26 @@ class MainViewController: UIViewController {
         
         // 선택된 알람 정보가 있다면 넘기기
         let memoId = UUID()  // 새로운 메모는 항상 UUID 생성
-            let alertTime = selectedAlertTime  // 사용자가 설정한 시간
-
-            // 1. 메모 저장
-            MemoDataManager.shared.addMemo(
-                uuid: memoId,
+        let alertTime = selectedAlertTime  // 사용자가 설정한 시간
+        
+        // 1. 메모 저장
+        MemoDataManager.shared.addMemo(
+            uuid: memoId,
+            title: title,
+            content: content,
+            isFavorite: isFavorite,
+            alertTime: alertTime
+        )
+        
+        // 2. 시간 알람이 설정되어 있다면 알림 등록
+        if let alertTime = alertTime {
+            AlertTimeNotiManager.shared.alertTimeAdd(
+                id: memoId.uuidString,
                 title: title,
-                content: content,
-                alertTime: alertTime
+                body: content,
+                date: alertTime
             )
-
-            // 2. 시간 알람이 설정되어 있다면 알림 등록
-            if let alertTime = alertTime {
-                AlertTimeNotiManager.shared.alertTimeAdd(
-                    id: memoId.uuidString,
-                    title: title,
-                    body: content,
-                    date: alertTime
-                )
-            }
+        }
         
         
         
@@ -221,8 +232,11 @@ class MainViewController: UIViewController {
         alert.addAction(UIAlertAction(title: "취소", style: .cancel, handler: nil))
         
         alert.addAction(UIAlertAction(title: "지우기", style: .destructive, handler: { _ in
+            print("클리어버튼")
             self.memoView.memoTitle.text = ""
             self.memoView.memoContents.text = ""
+            self.selectedAlertTime = nil
+            self.selectedCoordinate = nil
             self.memoView.memoContents.updatePlaceholderVisibility()
         }))
         
@@ -274,6 +288,7 @@ class MainViewController: UIViewController {
         navigationItem.rightBarButtonItems = [saveButton, menuButton]
     }
     
+    // 앱이 백그라운드에서 동작중일 때 울린 알람 클릭
     @objc private func handleMemoNotification(_ notification: Notification) {
         print("노티함수까지는 실행")
         guard let memoID = notification.userInfo?["memoID"] as? String else { return }

@@ -16,6 +16,8 @@ extension Notification.Name {
     
     // 알림 클릭시 
     static let didReceiveMemoNotification = Notification.Name("didReceiveMemoNotification")
-                                             
+    
+    // 디테일뷰에서 메모 삭제시
+    static let memoDeleted = Notification.Name("memoDeleted")
 }
 

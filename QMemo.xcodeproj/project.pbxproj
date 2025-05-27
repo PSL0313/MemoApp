@@ -27,13 +27,14 @@
 		CCB540802DDD4B0D00D44BFD /* PlaceholderTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCB5406C2DDD4B0D00D44BFD /* PlaceholderTextView.swift */; };
 		CCB540892DDD4ED500D44BFD /* MemoDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCB540882DDD4EC600D44BFD /* MemoDataManager.swift */; };
 		CCB5408A2DDD4ED500D44BFD /* MemoDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCB540882DDD4EC600D44BFD /* MemoDataManager.swift */; };
-		CCB6A9FC2DDDA9A8007520F0 /* MemoEntity+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCB6A9FA2DDDA9A8007520F0 /* MemoEntity+CoreDataClass.swift */; };
-		CCB6A9FD2DDDA9A8007520F0 /* MemoEntity+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCB6A9FB2DDDA9A8007520F0 /* MemoEntity+CoreDataProperties.swift */; };
-		CCB6A9FE2DDDA9A8007520F0 /* MemoEntity+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCB6A9FA2DDDA9A8007520F0 /* MemoEntity+CoreDataClass.swift */; };
-		CCB6A9FF2DDDA9A8007520F0 /* MemoEntity+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCB6A9FB2DDDA9A8007520F0 /* MemoEntity+CoreDataProperties.swift */; };
 		CCB6AA022DDDAB47007520F0 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CCB5405C2DDD4AED00D44BFD /* Assets.xcassets */; };
 		CCCB90582DE42FF8003FE6F4 /* AlertTimeNotiManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCCB90572DE42FF5003FE6F4 /* AlertTimeNotiManager.swift */; };
 		CCCB90592DE42FF8003FE6F4 /* AlertTimeNotiManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCCB90572DE42FF5003FE6F4 /* AlertTimeNotiManager.swift */; };
+		CCCB905F2DE5DF75003FE6F4 /* MemoEntity+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCCB905D2DE5DF75003FE6F4 /* MemoEntity+CoreDataClass.swift */; };
+		CCCB90602DE5DF75003FE6F4 /* MemoEntity+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCCB905E2DE5DF75003FE6F4 /* MemoEntity+CoreDataProperties.swift */; };
+		CCCB90612DE5DF75003FE6F4 /* MemoEntity+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCCB905D2DE5DF75003FE6F4 /* MemoEntity+CoreDataClass.swift */; };
+		CCCB90622DE5DF75003FE6F4 /* MemoEntity+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCCB905E2DE5DF75003FE6F4 /* MemoEntity+CoreDataProperties.swift */; };
+		CCCB90642DE601B2003FE6F4 /* MemoInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCCB90632DE601B2003FE6F4 /* MemoInfoViewController.swift */; };
 		CCEF92C52DDED6670039C2BA /* PaddingLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCEF92C42DDED64E0039C2BA /* PaddingLabel.swift */; };
 /* End PBXBuildFile section */
 
@@ -79,9 +80,10 @@
 		CCB540752DDD4B0D00D44BFD /* ListDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListDetailViewController.swift; sourceTree = "<group>"; };
 		CCB540762DDD4B0D00D44BFD /* UsersViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsersViewController.swift; sourceTree = "<group>"; };
 		CCB540882DDD4EC600D44BFD /* MemoDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoDataManager.swift; sourceTree = "<group>"; };
-		CCB6A9FA2DDDA9A8007520F0 /* MemoEntity+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MemoEntity+CoreDataClass.swift"; sourceTree = "<group>"; };
-		CCB6A9FB2DDDA9A8007520F0 /* MemoEntity+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MemoEntity+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		CCCB90572DE42FF5003FE6F4 /* AlertTimeNotiManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertTimeNotiManager.swift; sourceTree = "<group>"; };
+		CCCB905D2DE5DF75003FE6F4 /* MemoEntity+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MemoEntity+CoreDataClass.swift"; sourceTree = "<group>"; };
+		CCCB905E2DE5DF75003FE6F4 /* MemoEntity+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MemoEntity+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		CCCB90632DE601B2003FE6F4 /* MemoInfoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoInfoViewController.swift; sourceTree = "<group>"; };
 		CCEF92C42DDED64E0039C2BA /* PaddingLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaddingLabel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -199,6 +201,7 @@
 				CCB540742DDD4B0D00D44BFD /* ListViewController.swift */,
 				CCB540752DDD4B0D00D44BFD /* ListDetailViewController.swift */,
 				CCB540762DDD4B0D00D44BFD /* UsersViewController.swift */,
+				CCCB90632DE601B2003FE6F4 /* MemoInfoViewController.swift */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -209,8 +212,8 @@
 				CCCB90572DE42FF5003FE6F4 /* AlertTimeNotiManager.swift */,
 				CCB540882DDD4EC600D44BFD /* MemoDataManager.swift */,
 				CCB540602DDD4AED00D44BFD /* QMemo.xcdatamodeld */,
-				CCB6A9FA2DDDA9A8007520F0 /* MemoEntity+CoreDataClass.swift */,
-				CCB6A9FB2DDDA9A8007520F0 /* MemoEntity+CoreDataProperties.swift */,
+				CCCB905D2DE5DF75003FE6F4 /* MemoEntity+CoreDataClass.swift */,
+				CCCB905E2DE5DF75003FE6F4 /* MemoEntity+CoreDataProperties.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -366,15 +369,16 @@
 				CCB540792DDD4B0D00D44BFD /* ListDetailViewController.swift in Sources */,
 				CCB5407A2DDD4B0D00D44BFD /* ListViewController.swift in Sources */,
 				CCB5407B2DDD4B0D00D44BFD /* FirstConnectionView.swift in Sources */,
-				CCB6A9FE2DDDA9A8007520F0 /* MemoEntity+CoreDataClass.swift in Sources */,
-				CCB6A9FF2DDDA9A8007520F0 /* MemoEntity+CoreDataProperties.swift in Sources */,
 				CCB5407C2DDD4B0D00D44BFD /* MainView.swift in Sources */,
 				CCB5407D2DDD4B0D00D44BFD /* ListView - TableViewCell.swift in Sources */,
 				CCB5408A2DDD4ED500D44BFD /* MemoDataManager.swift in Sources */,
 				CC7F3BF02DE1BE32002E47A6 /* GlobalFunc.swift in Sources */,
+				CCCB90642DE601B2003FE6F4 /* MemoInfoViewController.swift in Sources */,
 				CCEF92C52DDED6670039C2BA /* PaddingLabel.swift in Sources */,
 				CCB5407E2DDD4B0D00D44BFD /* MainViewController.swift in Sources */,
 				CCB5407F2DDD4B0D00D44BFD /* UsersViewController.swift in Sources */,
+				CCCB90612DE5DF75003FE6F4 /* MemoEntity+CoreDataClass.swift in Sources */,
+				CCCB90622DE5DF75003FE6F4 /* MemoEntity+CoreDataProperties.swift in Sources */,
 				CCB540802DDD4B0D00D44BFD /* PlaceholderTextView.swift in Sources */,
 				CCCB90592DE42FF8003FE6F4 /* AlertTimeNotiManager.swift in Sources */,
 				CC7F3BFB2DE2F611002E47A6 /* NameSpace.swift in Sources */,
@@ -387,9 +391,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CCB6A9FC2DDDA9A8007520F0 /* MemoEntity+CoreDataClass.swift in Sources */,
+				CCCB905F2DE5DF75003FE6F4 /* MemoEntity+CoreDataClass.swift in Sources */,
+				CCCB90602DE5DF75003FE6F4 /* MemoEntity+CoreDataProperties.swift in Sources */,
 				CCCB90582DE42FF8003FE6F4 /* AlertTimeNotiManager.swift in Sources */,
-				CCB6A9FD2DDDA9A8007520F0 /* MemoEntity+CoreDataProperties.swift in Sources */,
 				CCB540892DDD4ED500D44BFD /* MemoDataManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -440,8 +444,8 @@
 				INFOPLIST_FILE = QMemo/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -449,9 +453,13 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.seonlin.QMemo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -467,8 +475,8 @@
 				INFOPLIST_FILE = QMemo/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -476,9 +484,13 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.seonlin.QMemo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};

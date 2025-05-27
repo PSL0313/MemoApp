@@ -13,6 +13,8 @@ class MemoListViewController: UIViewController {
     private let tableView = UITableView()
     private var allMemos: [MemoEntity] = []
     private var filteredMemos: [MemoEntity] = []
+    private var favoriteMemos: [MemoEntity] = []
+    private var normalMemos: [MemoEntity] = []
     private var selectedFilterIndex: Int = 0
     
     private var actionBarBottomConstraint: NSLayoutConstraint!
@@ -26,8 +28,8 @@ class MemoListViewController: UIViewController {
             button.setTitle(title, for: .normal)
             button.tag = index
             button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
-            button.setTitleColor(.systemBlue, for: .normal)
-            button.backgroundColor = UIColor.systemGray6
+            button.setTitleColor(.brown, for: .normal)
+            button.backgroundColor = NameSpace.ColorSetting.lightBrownColor
             button.layer.cornerRadius = 8
             button.layer.masksToBounds = true
             button.addTarget(self, action: #selector(filterButtonTapped(_:)), for: .touchUpInside)
@@ -87,11 +89,17 @@ class MemoListViewController: UIViewController {
         setUI()
         navigationBarSetting()
         
-        // 노티피케이션 구독, 셀렉터 등록
+        // MARK: - NotificationCenter
         NotificationCenter.default.addObserver(
                 self,
                 selector: #selector(handleMemoSaved),
                 name: .memoSaved,
+                object: nil
+            )
+        NotificationCenter.default.addObserver(
+                self,
+                selector: #selector(handleMemoDeleted(_:)),
+                name: .memoDeleted,
                 object: nil
             )
     }
@@ -119,7 +127,7 @@ class MemoListViewController: UIViewController {
         tableView.dataSource = self
         tableView.delegate = self
         
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "MemoCell")
+        tableView.register(ListTableViewCell.self, forCellReuseIdentifier: "MemoCell")
         
         //편집 모드 = true -> (isEditing = true)에서 여러 셀을 동시에 선택할 수 있게 함
         tableView.allowsMultipleSelectionDuringEditing = true
@@ -127,8 +135,10 @@ class MemoListViewController: UIViewController {
     
     // UI 설정 메서드들을 실행하는 메서드
     private func setUI() {
-        view.backgroundColor = .white
-
+        view.backgroundColor = NameSpace.ColorSetting.overLightBorwnColor
+        
+        tableView.backgroundColor = NameSpace.ColorSetting.lightBrownColor
+        
         filterStackView.translatesAutoresizingMaskIntoConstraints = false
         tableView.translatesAutoresizingMaskIntoConstraints = false
         actionBarView.translatesAutoresizingMaskIntoConstraints = false
@@ -156,8 +166,8 @@ class MemoListViewController: UIViewController {
             filterStackView.heightAnchor.constraint(equalToConstant: 40),
 
             tableView.topAnchor.constraint(equalTo: filterStackView.bottomAnchor, constant: 8),
-            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
+            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
             tableViewBottomConstraint,
             
             actionBarView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
@@ -197,6 +207,9 @@ class MemoListViewController: UIViewController {
         default:
             break
         }
+        favoriteMemos = filteredMemos.filter { $0.isFavorite }
+        normalMemos = filteredMemos.filter { !$0.isFavorite }
+
         tableView.reloadData()
     }
     
@@ -216,14 +229,14 @@ class MemoListViewController: UIViewController {
         default:
             filteredMemos = allMemos
         }
+        favoriteMemos = filteredMemos.filter { $0.isFavorite }
+        normalMemos = filteredMemos.filter { !$0.isFavorite }
+        
         tableView.reloadData()
     }
     
     // 데이터 받아오기
     private func fetchMemos() {
-//        allMemos = MemoDataManager.shared.fetchMemos()
-//        filteredMemos = allMemos
-//        tableView.reloadData()
         allMemos = MemoDataManager.shared.fetchMemos()
         applyFilter(index: selectedFilterIndex)
     }
@@ -310,39 +323,52 @@ class MemoListViewController: UIViewController {
         let indexPath = IndexPath(row: lastRow, section: lastSection)
         tableView.scrollToRow(at: indexPath, at: .bottom, animated: animated)
     }
-
+    
     @objc private func deleteSelectedMemos() {
         print("삭제 버튼 눌림")
+
         guard let selectedRows = tableView.indexPathsForSelectedRows else { return }
 
-        let sortedRows = selectedRows.sorted(by: { $0.row > $1.row })
+        let sortedRows = selectedRows.sorted(by: { $0.section > $1.section || ($0.section == $1.section && $0.row > $1.row) })
 
         var deletedMemos: [MemoEntity] = []
 
         for indexPath in sortedRows {
-            let memo = filteredMemos[indexPath.row]   // ✅ 필터링된 기준으로
+            let memo: MemoEntity
+
+            // ✅ 섹션에 따라 즐겨찾기/일반에서 가져오기
+            if indexPath.section == 0 {
+                memo = favoriteMemos[indexPath.row]
+                favoriteMemos.remove(at: indexPath.row)
+            } else {
+                memo = normalMemos[indexPath.row]
+                normalMemos.remove(at: indexPath.row)
+            }
+
             deletedMemos.append(memo)
 
-            // ✅ 삭제 전 배열에서 제거 (filtered + all 둘 다)
+            // ✅ allMemos, filteredMemos에서도 제거
             if let index = allMemos.firstIndex(of: memo) {
                 allMemos.remove(at: index)
             }
-            filteredMemos.remove(at: indexPath.row)
-            
-            // ✅ 알림 취소 (알림이 설정된 경우에만)
+            if let index = filteredMemos.firstIndex(of: memo) {
+                filteredMemos.remove(at: index)
+            }
+
+            // ✅ 알림 취소
             if memo.alertTime != nil {
                 let identifier = memo.id?.uuidString ?? ""
                 AlertTimeNotiManager.shared.alertTimeDelete(id: identifier)
             }
         }
 
-        // ✅ CoreData 삭제
+        // ✅ CoreData에서 삭제
         MemoDataManager.shared.deleteMemos(deletedMemos)
 
-        // ✅ 테이블에서 UI 삭제
+        // ✅ 테이블 뷰에서 UI 제거
         tableView.deleteRows(at: sortedRows, with: .automatic)
 
-        // 선택 모드 종료 (바 내리기 등)
+        // ✅ 선택 모드 종료
         selectButtonTapped()
     }
     
@@ -364,6 +390,23 @@ class MemoListViewController: UIViewController {
         applyFilter(index: selectedFilterIndex)
     }
     
+    @objc private func handleMemoDeleted(_ notification: Notification) {
+        guard let id = notification.userInfo?["id"] as? UUID else { return }
+        
+        // ✅ 알림 삭제
+        AlertTimeNotiManager.shared.alertTimeDelete(id: id.uuidString)
+        
+        // ✅ 배열에서 제거
+        if let index = allMemos.firstIndex(where: { $0.id == id }) {
+            allMemos.remove(at: index)
+        }
+        
+        if let index = filteredMemos.firstIndex(where: { $0.id == id }) {
+            filteredMemos.remove(at: index)
+            let indexPath = IndexPath(row: index, section: 0)
+            tableView.deleteRows(at: [indexPath], with: .automatic)
+        }
+    }
 }
 
 
@@ -372,24 +415,42 @@ class MemoListViewController: UIViewController {
 // MARK: - 확장(UITableViewDataSource, UITableViewDelegate)
 extension MemoListViewController: UITableViewDataSource, UITableViewDelegate {
     // UITableViewDataSource
+    
+    func numberOfSections(in tableView: UITableView) -> Int {
+        return 2 // 즐겨찾기, 일반
+    }
+
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return filteredMemos.count
+        return section == 0 ? favoriteMemos.count : normalMemos.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let memo = filteredMemos[indexPath.row]
-        let cell = tableView.dequeueReusableCell(withIdentifier: "MemoCell", for: indexPath)
-        cell.textLabel?.text = memo.title
+        let cell = tableView.dequeueReusableCell(withIdentifier: "MemoCell", for: indexPath) as! ListTableViewCell
+        let memo = indexPath.section == 0 ? favoriteMemos[indexPath.row] : normalMemos[indexPath.row]
+        cell.memoContent = memo
         return cell
+    }
+    
+    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        return section == 0 ? "⭐️ 즐겨찾기" : "📄 메모"
     }
     
     // UITableViewDelegate
     // 셀을 오른쪽에서 왼쪽으로 스와이프하면 실행되는 메서드
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         
-        let memoToDelete = self.filteredMemos[indexPath.row]  // filteredMemos 기준이 정확함
+        // ✅ 섹션 기준으로 메모 가져오기
+        let memoToDelete = indexPath.section == 0
+            ? favoriteMemos[indexPath.row]
+            : normalMemos[indexPath.row]
         
         let deleteAction = UIContextualAction(style: .destructive, title: "삭제") { (_, _, completionHandler) in
+            
+            // ✅ 알림도 삭제
+            if memoToDelete.alertTime != nil {
+                let identifier = memoToDelete.id?.uuidString ?? ""
+                AlertTimeNotiManager.shared.alertTimeDelete(id: identifier)
+            }
             
             // ✅ CoreData에서 삭제
             MemoDataManager.shared.deleteMemo(memoToDelete)
@@ -398,7 +459,14 @@ extension MemoListViewController: UITableViewDataSource, UITableViewDelegate {
             if let indexInAll = self.allMemos.firstIndex(of: memoToDelete) {
                 self.allMemos.remove(at: indexInAll)
             }
-            self.filteredMemos.remove(at: indexPath.row)
+            if let indexInFiltered = self.filteredMemos.firstIndex(of: memoToDelete) {
+                self.filteredMemos.remove(at: indexInFiltered)
+            }
+            if indexPath.section == 0 {
+                self.favoriteMemos.remove(at: indexPath.row)
+            } else {
+                self.normalMemos.remove(at: indexPath.row)
+            }
             
             // ✅ UI 반영
             tableView.deleteRows(at: [indexPath], with: .automatic)
@@ -411,14 +479,18 @@ extension MemoListViewController: UITableViewDataSource, UITableViewDelegate {
         return config
     }
     
-    // 셀 선택시 실행되는 메서드
+
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if tableView.isEditing {
             updateSelectionCount()
             return
         }
 
-        let selectedMemo = filteredMemos[indexPath.row] // ✅ 이게 맞음
+        // ✅ section에 따라 올바른 배열에서 가져오기
+        let selectedMemo = indexPath.section == 0
+            ? favoriteMemos[indexPath.row]
+            : normalMemos[indexPath.row]
+
         let detailVC = ListDetailViewController()
         detailVC.memo = selectedMemo
         navigationController?.pushViewController(detailVC, animated: true)
@@ -429,4 +501,6 @@ extension MemoListViewController: UITableViewDataSource, UITableViewDelegate {
             updateSelectionCount()
         }
     }
+    
+    
 }

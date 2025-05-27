@@ -2,7 +2,7 @@
 //  MemoEntity+CoreDataClass.swift
 //  QMemo
 //
-//  Created by 박선린 on 5/21/25.
+//  Created by 박선린 on 5/27/25.
 //
 //
 

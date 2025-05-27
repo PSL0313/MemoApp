@@ -21,11 +21,12 @@ class MemoDataManager {
     }
 
     // 📥 메모 추가
-    func addMemo(uuid: UUID, title: String, content: String, alertTime: Date? = nil, latitude: Double? = nil, longitude: Double? = nil) {
+    func addMemo(uuid: UUID, title: String, content: String, isFavorite: Bool, alertTime: Date? = nil, latitude: Double? = nil, longitude: Double? = nil) {
         let newMemo = MemoEntity(context: context)
         newMemo.id = uuid
         newMemo.title = title
         newMemo.content = content
+        newMemo.isFavorite = isFavorite
         newMemo.createdAt = Date()
         newMemo.alertTime = alertTime
 
@@ -38,6 +39,13 @@ class MemoDataManager {
     // 📤 메모 전부 가져오기
     func fetchMemos() -> [MemoEntity] {
         let request: NSFetchRequest<MemoEntity> = MemoEntity.fetchRequest()
+
+        // ⭐️ 즐겨찾기 먼저 정렬 (true가 위로 오게 = 내림차순), 다음은 생성일 기준
+        let favoriteSort = NSSortDescriptor(key: "isFavorite", ascending: false)
+        let dateSort = NSSortDescriptor(key: "createdAt", ascending: false)
+
+        request.sortDescriptors = [favoriteSort, dateSort]
+
         do {
             return try context.fetch(request)
         } catch {
@@ -61,9 +69,10 @@ class MemoDataManager {
     }
 
     // ✏️ 메모 수정 (title, content 변경 예시)
-    func updateMemo(_ memo: MemoEntity, title: String, content: String, alertTime: Date? = nil, latitude: Double? = nil, longitude: Double? = nil) {
+    func updateMemo(_ memo: MemoEntity, title: String, content: String, isFavorite: Bool, alertTime: Date? = nil, latitude: Double? = nil, longitude: Double? = nil) {
         memo.title = title
         memo.content = content
+        memo.isFavorite = isFavorite 
         memo.alertTime = alertTime  // 덮어쓰기 허용
         memo.latitude = latitude ?? 0
         memo.longitude = longitude ?? 0

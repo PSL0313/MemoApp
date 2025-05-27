@@ -6,19 +6,31 @@
 //
 
 import UIKit
+import CoreLocation
 
 class ListDetailViewController: UIViewController {
     
     var memoView = MainView()
+    var isFavorite = false
+    var selectedAlertTime: Date? = nil
+    var selectedCoordinate: CLLocationCoordinate2D? = nil
     
     var memo: MemoEntity? {
         didSet {
             memoView.memoTitle.text = memo?.title
             memoView.memoContents.text = memo?.content
+            isFavorite = memo?.isFavorite ?? false
+            selectedAlertTime = memo?.alertTime
+            selectedCoordinate?.latitude = memo?.latitude ?? 0
+            selectedCoordinate?.longitude = memo?.longitude ?? 0
             memoView.memoContents.updatePlaceholderVisibility()
         }
     }
     
+    
+    private var menuButton: UIBarButtonItem!
+    
+    // MARK: - viewDidLoad
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -72,15 +84,23 @@ class ListDetailViewController: UIViewController {
         edgePanGesture.edges = .left
         view.addGestureRecognizer(edgePanGesture)
         
+        setupMenuButton(isFavorited: isFavorite)
+    }
+    
+    
+    private func setupMenuButton(isFavorited: Bool) {
         let alarmSettingAction = UIAction(title: "알람 수정", image: UIImage(systemName: "alarm")) { _ in
             print("알람 설정 선택됨")
             // 내부 코드 구현
         }
         
-        let favoriteMemoAction = UIAction(title: "즐겨찾기", image: UIImage(systemName: "star")) { _ in
-            print("즐겨찾기 선택됨")
-            // 내부 코드 구현
-        }
+        let starImage = isFavorite ? UIImage(systemName: "star.fill") : UIImage(systemName: "star")
+        let favoriteMemoAction = UIAction(title: "즐겨찾기", image: starImage) { _ in
+                // 즐겨찾기 토글 처리
+                self.isFavorite.toggle()
+            showToast(defaultViewName: self.memoView, message: "즐겨찾기 \(self.isFavorite ? "추가 완료" : "해제 완료")")
+                self.updateMenuIcon()
+            }
 
         let infoAction = UIAction(title: "메모 정보", image: UIImage(systemName: "info.circle")) { _ in
             print("메모 정보정보 선택됨")
@@ -97,12 +117,11 @@ class ListDetailViewController: UIViewController {
         }
 
         let menu = UIMenu(title: "", children: [alarmSettingAction, favoriteMemoAction, infoAction, deleteAction])
-        let menuButton = UIBarButtonItem(image: UIImage(systemName: "ellipsis.circle"), menu: menu)
+        menuButton = UIBarButtonItem(image: UIImage(systemName: "ellipsis.circle"), menu: menu)
         menuButton.tintColor = .brown
 
         // 내비게이션 아이템의 오른쪽에 버튼을 추가합니다.
         navigationItem.rightBarButtonItem = menuButton
-        
     }
     
     // 메뉴창에서 삭제 클릭시 뜨는 액션시트
@@ -111,6 +130,7 @@ class ListDetailViewController: UIViewController {
 
             let confirmDelete = UIAlertAction(title: "메모 삭제", style: .destructive) { _ in
                 print("삭제 실행됨") // 실제 삭제 로직 구현
+                self.clearTapped()
             }
 
             let cancelDelete = UIAlertAction(title: "취소", style: .cancel, handler: nil)
@@ -122,42 +142,56 @@ class ListDetailViewController: UIViewController {
         }
     
     
-    // 삭제?
-//    @objc func clearTapped() {
-//        let alert = UIAlertController(
-//                title: "입력 초기화",
-//                message: "작성 중인 내용을 모두 지우시겠어요?",
-//                preferredStyle: .alert
-//            )
-//
-//            alert.addAction(UIAlertAction(title: "취소", style: .cancel, handler: nil))
-//
-//            alert.addAction(UIAlertAction(title: "지우기", style: .destructive, handler: { _ in
-//                self.memoView.memoTitle.text = ""
-//                self.memoView.memoContents.text = ""
-//                self.memoView.memoContents.updatePlaceholderVisibility()
-//            }))
-//
-//            present(alert, animated: true, completion: nil)
-//    }
+    // 삭제
+    @objc func clearTapped() {
+        guard let memo = self.memo else { return }
+        
+        // 1️⃣ CoreData에서 삭제
+        MemoDataManager.shared.deleteMemo(memo)
+        
+        // 2️⃣ 삭제 알림 전송
+        NotificationCenter.default.post(
+            name: .memoDeleted,
+            object: nil,
+            userInfo: ["id": memo.id ?? UUID()]
+        )
+        
+        // 3️⃣ 화면 닫기
+        self.navigationController?.popViewController(animated: true)
+    }
     
     @objc private func backButtonTapped() {
         let currentTitle = memoView.memoTitle.text ?? ""
-        let currentContent = memoView.memoContents.text ?? "" 
-        
-        // 변경사항이 있을 경우 알림창 표시
-        if memoView.memoTitle.text != memo?.title || memoView.memoContents.text != memo?.content {
+        let currentContent = memoView.memoContents.text ?? ""
+        let currentisFavorite = isFavorite
+        let currentAlertTime = selectedAlertTime
+        let currentLatitude = selectedCoordinate?.latitude ?? 0
+        let currentLongitude = selectedCoordinate?.longitude ?? 0
+
+        let hasChanges =
+            currentTitle != memo?.title ||
+            currentContent != memo?.content ||
+            currentisFavorite != memo?.isFavorite ||
+            currentAlertTime != memo?.alertTime ||
+            currentLatitude != memo?.latitude ||
+            currentLongitude != memo?.longitude
+
+        if hasChanges {
             let alert = UIAlertController(title: "변경사항 저장",
                                           message: "수정된 내용을 저장하시겠습니까?",
                                           preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "취소", style: .cancel))
             alert.addAction(UIAlertAction(title: "저장", style: .default, handler: { _ in
-                self.saveChanges(title: currentTitle, content: currentContent)
+                self.saveChanges(title: currentTitle,
+                                 content: currentContent,
+                                 isFavorite: currentisFavorite,
+                                 alertTime: currentAlertTime,
+                                 latitude: currentLatitude,
+                                 longitude: currentLongitude)
                 self.navigationController?.popViewController(animated: true)
             }))
             present(alert, animated: true)
         } else {
-            // 변경사항 없으면 그냥 pop
             navigationController?.popViewController(animated: true)
         }
     }
@@ -167,11 +201,24 @@ class ListDetailViewController: UIViewController {
             backButtonTapped()
         }
     }
-
-    private func saveChanges(title: String, content: String) {
+    
+    private func saveChanges(title: String, content: String, isFavorite: Bool, alertTime: Date?, latitude: Double?, longitude: Double?) {
         guard let memo = memo else { return }
-        MemoDataManager.shared.updateMemo(memo, title: title, content: content)
         
         NotificationCenter.default.post(name: .memoUpdated, object: nil)
+        
+        MemoDataManager.shared.updateMemo(
+            memo,
+            title: title,
+            content: content,
+            isFavorite: isFavorite,
+            alertTime: alertTime,
+            latitude: latitude,
+            longitude: longitude
+        )
+    }
+    
+    private func updateMenuIcon() {
+        setupMenuButton(isFavorited: isFavorite)
     }
 }
