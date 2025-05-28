@@ -25,7 +25,7 @@ class MainViewController: UIViewController {
     
     var selectedCoordinate: CLLocationCoordinate2D? {
         didSet {
-            if selectedCoordinate != nil {
+            if selectedCoordinate != nil {  // selectedCoordinate 값이 바뀜 -> nil이 아닌 경우 AlertTime = nil 할당
                 selectedAlertTime = nil
             }
             updateAlarmMenuButtonImage()

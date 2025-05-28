@@ -34,7 +34,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // 첫번째 화면은 네비게이션컨트롤러로 만들기 (기본루트뷰 설정)
         let vc1 = UINavigationController(rootViewController: MainViewController())
         let vc2 = UINavigationController(rootViewController: MemoListViewController())
-        let vc3 = UINavigationController(rootViewController: UsersViewController())
+//        let vc3 = UINavigationController(rootViewController: UsersViewController())
 
         
         // 탭바 이름들 설정
@@ -44,8 +44,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
         
         // 탭바로 사용하기 위한 뷰 컨트롤러들 설정
-        //tabBarVC.setViewControllers([vc1, vc2, vc3, vc4, vc5], animated: false)
-        tabBarVC.setViewControllers([vc1, vc2, vc3], animated: false)
+        tabBarVC.setViewControllers([vc1, vc2], animated: false)
+//        tabBarVC.setViewControllers([vc1, vc2, vc3], animated: false)
         tabBarVC.modalPresentationStyle = .fullScreen
         tabBarVC.tabBar.backgroundColor = .white
         tabBarVC.tabBar.tintColor = .brown
@@ -54,7 +54,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let items = tabBarVC.tabBar.items else { return }
         items[0].image = UIImage(systemName: "square.and.pencil")
         items[1].image = UIImage(systemName: "folder")
-        items[2].image = UIImage(systemName: "person.circle")
+//        items[2].image = UIImage(systemName: "person.circle")
         
             
         // 기본루트뷰를 탭바컨트롤러로 설정⭐️⭐️⭐️

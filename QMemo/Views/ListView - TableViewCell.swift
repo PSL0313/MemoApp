@@ -81,11 +81,13 @@ class ListTableViewCell: UITableViewCell {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setupUI()  // ✅ UI 구성 여기에
+        selectedBackgroundView = UIView()
     }
 
     required init?(coder: NSCoder) {
         super.init(coder: coder)
         setupUI()  // ✅ 이건 보통 사용되지 않지만 대비용
+        selectedBackgroundView = UIView()
     }
     
     private func setupUI() {

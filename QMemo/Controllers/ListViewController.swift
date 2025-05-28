@@ -75,7 +75,13 @@ class MemoListViewController: UIViewController {
         let button = UIButton(type: .system)
         button.setImage(UIImage(systemName: "trash"), for: .normal)
         button.tintColor = .red
-//        button.addTarget(self, action: #selector(deleteSelectedMemos), for: .touchUpInside)
+        return button
+    }()
+    
+    private let allSelectButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setImage(UIImage(systemName: "trash"), for: .normal)
+        button.tintColor = .red
         return button
     }()
     

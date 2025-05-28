@@ -28,7 +28,7 @@ class MainView: UIView {
         textView.textAlignment = .left
         textView.alwaysBounceVertical = true
         textView.keyboardDismissMode = .interactive
-        textView.font = .systemFont(ofSize: 13)
+        textView.font = .systemFont(ofSize: 15)
         textView.backgroundColor = .white
         textView.layer.cornerRadius = 12
         textView.layer.masksToBounds = true

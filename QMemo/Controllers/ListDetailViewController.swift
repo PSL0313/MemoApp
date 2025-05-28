@@ -105,6 +105,9 @@ class ListDetailViewController: UIViewController {
         let infoAction = UIAction(title: "메모 정보", image: UIImage(systemName: "info.circle")) { _ in
             print("메모 정보정보 선택됨")
             // 내부 코드 구현
+            let infoViewCon = MemoInfoViewController()
+            infoViewCon.memo = self.memo
+            self.navigationController?.pushViewController(infoViewCon, animated: true)
         }
         
 
@@ -161,8 +164,8 @@ class ListDetailViewController: UIViewController {
     }
     
     @objc private func backButtonTapped() {
-        let currentTitle = memoView.memoTitle.text ?? ""
-        let currentContent = memoView.memoContents.text ?? ""
+        let currentTitle = memoView.memoTitle.text?.isEmpty == false ? memoView.memoTitle.text! : "제목 없음"
+        let currentContent = memoView.memoContents.text?.isEmpty == false ? memoView.memoContents.text! : "내용이 없습니다."
         let currentisFavorite = isFavorite
         let currentAlertTime = selectedAlertTime
         let currentLatitude = selectedCoordinate?.latitude ?? 0
@@ -180,7 +183,9 @@ class ListDetailViewController: UIViewController {
             let alert = UIAlertController(title: "변경사항 저장",
                                           message: "수정된 내용을 저장하시겠습니까?",
                                           preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "취소", style: .cancel))
+            alert.addAction(UIAlertAction(title: "취소", style: .cancel, handler: { _ in
+                self.navigationController?.popViewController(animated: true)
+            }))
             alert.addAction(UIAlertAction(title: "저장", style: .default, handler: { _ in
                 self.saveChanges(title: currentTitle,
                                  content: currentContent,
