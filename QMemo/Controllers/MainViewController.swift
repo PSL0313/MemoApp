@@ -54,52 +54,16 @@ class MainViewController: UIViewController {
     // MARK: - viewDidLoad()
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        // MARK: TestCode - 테스트 메서드
-        testfunc()
-        
-        
-        
         defaultSetting()
-        
-        // 옵저버 등록
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(handleMemoNotification(_:)),
-            name: .didReceiveMemoNotification,
-            object: nil
-        )
     }
     
-    
-    
-    // MARK: - viewDidAppear
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        
-        // 한 번만 실행되도록 체크
-        let hasLaunchedKey = "hasLaunchedBefore"
-        let isFirstLaunch = !UserDefaults.standard.bool(forKey: hasLaunchedKey)
-        
-        if isFirstLaunch {
-            UserDefaults.standard.set(true, forKey: hasLaunchedKey)
-            
-            // 메인 화면이 먼저 보여지도록 약간의 지연 추가
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                self.firstConnection()
-            }
-        }
-    }
     
     
     
     private func defaultSetting() {
-        
         view.backgroundColor = UIColor(red: 0.99, green: 0.97, blue: 0.94, alpha: 1.0)
         memoViewSetting()
         navigationBarSetting()
-        
-        
     }
     
     private func memoViewSetting() {
@@ -117,9 +81,7 @@ class MainViewController: UIViewController {
     
     
     private func navigationBarSetting() {
-        // (네비게이션바 설정관련) iOS버전 업데이트 되면서 바뀐 설정⭐️⭐️⭐️
         let appearance = UINavigationBarAppearance()
-        //        appearance.configureWithOpaqueBackground()  // 불투명으로
         appearance.backgroundColor = UIColor(red: 0.98, green: 0.95, blue: 0.91, alpha: 1.0)
         navigationController?.navigationBar.tintColor = .blue
         navigationController?.navigationBar.standardAppearance = appearance
@@ -242,13 +204,7 @@ class MainViewController: UIViewController {
         
         present(alert, animated: true, completion: nil)
     }
-    
-    // 첫 접속인 경우
-    private func firstConnection() {
-        let vc = FirstConnectionViewController()
-        vc.modalPresentationStyle = .fullScreen
-        self.present(vc, animated: true)
-    }
+
     
     // 메뉴버튼의 액션 생성 메서드
     private func makeMenu() -> UIMenu {
@@ -256,6 +212,7 @@ class MainViewController: UIViewController {
             let vc = AlertTimeViewController()
             vc.modalPresentationStyle = .automatic
             vc.alertTimedelegate = self
+            vc.ToastDelegate = self.view
             self.present(vc, animated: true)
         }
         
@@ -265,7 +222,8 @@ class MainViewController: UIViewController {
             self.present(vc, animated: true)
         }
         
-        return UIMenu(title: "", children: [alertTimeSetAction, coordinateSetAction])
+        return UIMenu(title: "", children: [alertTimeSetAction])
+        //return UIMenu(title: "", children: [alertTimeSetAction, coordinateSetAction])
     }
     
     // 알람 상태 업데이트 함수 -> 시간, 위치 알람 설정에 따른 버튼 이미지 변경
@@ -288,42 +246,36 @@ class MainViewController: UIViewController {
         navigationItem.rightBarButtonItems = [saveButton, menuButton]
     }
     
-    // 앱이 백그라운드에서 동작중일 때 울린 알람 클릭
-    @objc private func handleMemoNotification(_ notification: Notification) {
-        print("노티함수까지는 실행")
-        guard let memoID = notification.userInfo?["memoID"] as? String else { return }
+    @objc func handleMemoNotification(_ notification: Notification) {
+        guard let userInfo = notification.userInfo,
+              let memoIDString = userInfo["memoID"] as? String,
+              let memoUUID = UUID(uuidString: memoIDString) else {
+            return
+        }
         
-        if let uuid = UUID(uuidString: memoID),
-           let memo = MemoDataManager.shared.fetchMemo(byID: uuid) {
-            let detailVC = ListDetailViewController()
-            detailVC.memo = memo
-            navigationController?.pushViewController(detailVC, animated: true)
-            print("if문에서 걸러짐")
+        // 탭 전환
+        self.tabBarController?.selectedIndex = 1
+
+        // 0.1초 후에 푸시 (뷰 전환 후 푸시)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            let memoVC = ListDetailViewController()
+            memoVC.memo = MemoDataManager.shared.fetchMemo(byID: memoUUID)
+            self.navigationController?.pushViewController(memoVC, animated: true)
         }
     }
-    
-    // MARK: TestCode - 테스트 함수
-    func testfunc() {
-        // MARK: TestCode - 첫 접속인 경우 뜨는 화면을 확인하기 위한 키 삭제
-        //UserDefaults.standard.removeObject(forKey: "hasLaunchedBefore")
-        
-        // MARK: TestCode - 알람 설정 화면 만드는 중
-//        let vc = AlertTimeViewController()
-//        vc.modalPresentationStyle = .automatic
-//        self.present(vc, animated: true)
-        
-        // MARK: TestCode - 알림 권한 설정(허용 상태인지 확인)
-//        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, _ in
-//            print(granted ? "✅ 알림 허용됨" : "❌ 알림 거부됨")
-//        }
+
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
     
-    
 }
+
+
+
 
 extension MainViewController: AlertTimeDelegate {
     func didSelectAlertTime(_ date: Date) {
         self.selectedAlertTime = date
-        print("알림 시간 설정됨: \(date)")
+        print("메인 뷰컨에서 알림 시간 설정됨: \(date)")
     }
 }

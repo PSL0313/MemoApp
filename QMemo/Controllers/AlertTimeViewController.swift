@@ -16,11 +16,15 @@ protocol AlertTimeDelegate: AnyObject {
 class AlertTimeViewController: UIViewController {
     
     weak var alertTimedelegate: AlertTimeDelegate?
+    weak var ToastDelegate: UIView!
     
-    private let topbarView: UIView = {
-        var view = UIView()
-        view.backgroundColor = .systemBackground
-        return view
+    private let topLabel: UILabel = {
+        var label = UILabel()
+        label.text = "알람 설정"
+        label.textColor = .black
+        label.textAlignment = .center
+        label.backgroundColor = .clear
+        return label
     }()
     
     // "날짜 설정" 레이블
@@ -91,23 +95,23 @@ class AlertTimeViewController: UIViewController {
     private func setUI() {
         datePicker.backgroundColor = .white
         
-        topbarView.translatesAutoresizingMaskIntoConstraints = false
+        topLabel.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         datePicker.translatesAutoresizingMaskIntoConstraints = false
         cancelAndDoneStackView.translatesAutoresizingMaskIntoConstraints = false
         
-        view.addSubview(topbarView)
+        view.addSubview(topLabel)
         view.addSubview(titleLabel)
         view.addSubview(datePicker)
         view.addSubview(cancelAndDoneStackView)
         
         NSLayoutConstraint.activate([
-            topbarView.topAnchor.constraint(equalTo: view.topAnchor),
-            topbarView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            topbarView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            topbarView.heightAnchor.constraint(equalToConstant: 60),
+            topLabel.topAnchor.constraint(equalTo: view.topAnchor),
+            topLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            topLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            topLabel.heightAnchor.constraint(equalToConstant: 60),
             
-            titleLabel.topAnchor.constraint(equalTo: topbarView.bottomAnchor, constant: 30),
+            titleLabel.topAnchor.constraint(equalTo: topLabel.bottomAnchor, constant: 30),
             titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             titleLabel.heightAnchor.constraint(equalToConstant: 30),
@@ -141,7 +145,11 @@ class AlertTimeViewController: UIViewController {
         let selectedDate = datePicker.date
         alertTimedelegate?.didSelectAlertTime(selectedDate)
         print("delegate 있음:", alertTimedelegate != nil)
-        dismiss(animated: true)
+//        dismiss(animated: true, completion: nil)
+        dismiss(animated: true) {
+            showToast(defaultViewName: self.ToastDelegate, message: "알림 시간이 설정되었습니다.")
+            
+        }
     }
     
     // 알림 권한 설정 요청

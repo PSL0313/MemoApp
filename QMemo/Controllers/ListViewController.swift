@@ -118,6 +118,13 @@ class MemoListViewController: UIViewController {
             name: .memoUpdated,
             object: nil
         )
+        
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleMemoNotification(_:)),
+            name: .didReceiveMemoNotification,
+            object: nil
+        )
     }
     
     // MARK: - viewWillAppear
@@ -412,6 +419,31 @@ class MemoListViewController: UIViewController {
             let indexPath = IndexPath(row: index, section: 0)
             tableView.deleteRows(at: [indexPath], with: .automatic)
         }
+    }
+    
+    @objc private func handleMemoNotification(_ notification: Notification) {
+        guard let userInfo = notification.userInfo,
+              let memoIDString = userInfo["memoID"] as? String,
+              let memoUUID = UUID(uuidString: memoIDString) else {
+            return
+        }
+
+        // 이미 보여주고 있는 메모인지 확인해서 중복 push 방지
+        if let topVC = navigationController?.topViewController as? ListDetailViewController,
+           topVC.memo?.id == memoUUID {
+            return
+        }
+
+        // CoreData 또는 다른 저장소에서 해당 memo 찾아오기
+        guard let memo = MemoDataManager.shared.fetchMemo(byID: memoUUID) else { return }
+
+        let detailVC = ListDetailViewController()
+        detailVC.memo = memo
+        navigationController?.pushViewController(detailVC, animated: true)
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self, name: .didReceiveMemoNotification, object: nil)
     }
 }
 

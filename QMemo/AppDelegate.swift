@@ -11,7 +11,8 @@ import UserNotifications
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
-
+    
+    var launchedMemoID: String?
     
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
@@ -19,6 +20,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return true
     }
 
+    
     // MARK: UISceneSession Lifecycle
 
     func application(_ application: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession, options: UIScene.ConnectionOptions) -> UISceneConfiguration {
@@ -81,21 +83,33 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 }
 
 extension AppDelegate: UNUserNotificationCenterDelegate {
-    func userNotificationCenter(
-        _ center: UNUserNotificationCenter,
-        didReceive response: UNNotificationResponse,
-        withCompletionHandler completionHandler: @escaping () -> Void
-    ) {
+    func userNotificationCenter(_ center: UNUserNotificationCenter,
+                                didReceive response: UNNotificationResponse,
+                                withCompletionHandler completionHandler: @escaping () -> Void) {
         let userInfo = response.notification.request.content.userInfo
-
         if let memoID = userInfo["memoID"] as? String {
+            launchedMemoID = memoID
+            
             NotificationCenter.default.post(
-                name: .didReceiveMemoNotification,
-                object: nil,
-                userInfo: ["memoID": memoID]
-            )
-        }
+                        name: .didReceiveMemoNotification,
+                        object: nil,
+                        userInfo: ["memoID": memoID]
+                    )
 
+                    // ✅ 앱이 종료된 상태 대비로 저장도 해둠
+                    launchedMemoID = memoID
+            
+        }
         completionHandler()
     }
+    
+    func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        willPresent notification: UNNotification,
+        withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
+    ) {
+        // 배너와 소리를 통해 알림을 표시하도록 설정
+        completionHandler([.banner, .sound])
+    }
+    
 }

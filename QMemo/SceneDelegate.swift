@@ -7,10 +7,10 @@
 
 import UIKit
 
-class SceneDelegate: UIResponder, UIWindowSceneDelegate {
+class SceneDelegate: UIResponder, UIWindowSceneDelegate, UNUserNotificationCenterDelegate {
 
     var window: UIWindow?
-
+    var alreadyHandledMemoNotification = false
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         // Use this method to optionally configure and attach the UIWindow `window` to the provided UIWindowScene `scene`.
@@ -37,7 +37,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 //        let vc3 = UINavigationController(rootViewController: UsersViewController())
 
         
-        // 탭바 이름들 설정
+        // 탭바 이름들 설정 안함
 //        vc1.title = "Memo"
 //        vc2.title = "목록"
 //        vc3.title = "Info"
@@ -60,6 +60,38 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // 기본루트뷰를 탭바컨트롤러로 설정⭐️⭐️⭐️
         window?.rootViewController = tabBarVC
         window?.makeKeyAndVisible()
+        
+        if let notificationResponse = connectionOptions.notificationResponse {
+            let userInfo = notificationResponse.notification.request.content.userInfo
+            if let memoID = userInfo["memoID"] as? String {
+                tabBarVC.selectedIndex = 1
+                NotificationCenter.default.post(
+                    name: .didReceiveMemoNotification,
+                    object: nil,
+                    userInfo: ["memoID": memoID]
+                )
+                alreadyHandledMemoNotification = true
+                
+                // ✅ AppDelegate에 있는 것도 초기화
+                if let appDelegate = UIApplication.shared.delegate as? AppDelegate {
+                    appDelegate.launchedMemoID = nil
+                }
+            }
+        }
+
+        // ✅ AppDelegate에 임시 저장된 ID가 있고 아직 처리 안 했다면
+        if !alreadyHandledMemoNotification,
+           let appDelegate = UIApplication.shared.delegate as? AppDelegate,
+           let memoID = appDelegate.launchedMemoID {
+
+            tabBarVC.selectedIndex = 1
+            NotificationCenter.default.post(
+                name: .didReceiveMemoNotification,
+                object: nil,
+                userInfo: ["memoID": memoID]
+            )
+            appDelegate.launchedMemoID = nil
+        }
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {
@@ -69,9 +101,25 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // The scene may re-connect later, as its session was not necessarily discarded (see `application:didDiscardSceneSessions` instead).
     }
 
+    var didHandleMemoNotification = false
+
     func sceneDidBecomeActive(_ scene: UIScene) {
-        // Called when the scene has moved from an inactive state to an active state.
-        // Use this method to restart any tasks that were paused (or not yet started) when the scene was inactive.
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate,
+              let memoID = appDelegate.launchedMemoID else {
+            return
+        }
+
+        appDelegate.launchedMemoID = nil
+
+        if let tabBarController = window?.rootViewController as? UITabBarController {
+            tabBarController.selectedIndex = 1
+        }
+
+        NotificationCenter.default.post(
+            name: .didReceiveMemoNotification,
+            object: nil,
+            userInfo: ["memoID": memoID]
+        )
     }
 
     func sceneWillResignActive(_ scene: UIScene) {
@@ -80,8 +128,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
 
     func sceneWillEnterForeground(_ scene: UIScene) {
-        // Called as the scene transitions from the background to the foreground.
-        // Use this method to undo the changes made on entering the background.
+        didHandleMemoNotification = false
     }
 
     func sceneDidEnterBackground(_ scene: UIScene) {
@@ -93,6 +140,25 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         (UIApplication.shared.delegate as? AppDelegate)?.saveContext()
     }
 
+    func application(_ application: UIApplication,
+                         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
 
+            // 알림 권한 요청
+            UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, _ in
+                print("알림 권한 granted: \(granted)")
+            }
+
+            // 알림 델리게이트 설정
+            UNUserNotificationCenter.current().delegate = self
+
+            return true
+        }
+
+        // ✅ 포그라운드에서 알림을 강제로 보여주기 위한 메서드
+        func userNotificationCenter(_ center: UNUserNotificationCenter,
+                                    willPresent notification: UNNotification,
+                                    withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+            completionHandler([.banner, .sound]) // 🔔 이걸로 포그라운드에서도 알림 띄움
+        }
 }
 

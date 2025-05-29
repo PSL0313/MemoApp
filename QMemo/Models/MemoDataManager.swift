@@ -41,10 +41,10 @@ class MemoDataManager {
         let request: NSFetchRequest<MemoEntity> = MemoEntity.fetchRequest()
 
         // ⭐️ 즐겨찾기 먼저 정렬 (true가 위로 오게 = 내림차순), 다음은 생성일 기준
-        let favoriteSort = NSSortDescriptor(key: "isFavorite", ascending: false)
+//        let favoriteSort = NSSortDescriptor(key: "isFavorite", ascending: false)
         let dateSort = NSSortDescriptor(key: "createdAt", ascending: false)
 
-        request.sortDescriptors = [favoriteSort, dateSort]
+        request.sortDescriptors = [ dateSort] //favoriteSort,
 
         do {
             return try context.fetch(request)
@@ -97,6 +97,19 @@ class MemoDataManager {
             return try context.fetch(request).first
         } catch {
             print("❌ 특정 메모 불러오기 실패: \(error)")
+            return nil
+        }
+    }
+    
+    func alarmJoinfetchMemo(by id: UUID) -> MemoEntity? {
+        let fetchRequest: NSFetchRequest<MemoEntity> = MemoEntity.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "id == %@", id as CVarArg)
+        fetchRequest.fetchLimit = 1
+        
+        do {
+            return try context.fetch(fetchRequest).first
+        } catch {
+            print("❌ 메모 찾기 실패: \(error)")
             return nil
         }
     }

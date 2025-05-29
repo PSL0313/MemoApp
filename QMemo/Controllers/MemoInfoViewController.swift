@@ -226,16 +226,36 @@ class MemoInfoViewController: UIViewController {
         return view
     }()
     
+    var showToastUpdateCheck = false
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
         setUI()
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        setShowToast()
+        
+    }
+    
+    private func setShowToast() {
+        if showToastUpdateCheck {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+                guard let self = self else { return }
+                showToast(defaultViewName: self.view, message: "업데이트 완료")
+            }
+        }
+    }
+    
+    
     private func setUI() {
         let labelArray: [UIStackView] = [memoCreatedAtstackView, memoAlarmstackView,memoTitleStackView]
         let UIViewArray: [UIView] = [lineView1, lineView2, lineView3, lineView4, memoContent]
         
+        view.backgroundColor = .white
         
         labelArray.forEach {
             view.addSubview($0)
