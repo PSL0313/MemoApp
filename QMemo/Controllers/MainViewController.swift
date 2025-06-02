@@ -10,11 +10,13 @@ import CoreLocation
 //import CoreData
 
 
-class MainViewController: UIViewController {
+final class MainViewController: UIViewController {
     
-    var memoView = MainView()
+    private var memoView = MainView()
     
-    var selectedAlertTime: Date? {
+    private var isFavorite: Bool = false
+    
+    private var selectedAlertTime: Date? {
         didSet {
             if selectedAlertTime != nil {
                 selectedCoordinate = nil
@@ -23,19 +25,12 @@ class MainViewController: UIViewController {
         }
     }
     
-    var selectedCoordinate: CLLocationCoordinate2D? {
+    private var selectedCoordinate: CLLocationCoordinate2D? {
         didSet {
             if selectedCoordinate != nil {  // selectedCoordinate 값이 바뀜 -> nil이 아닌 경우 AlertTime = nil 할당
                 selectedAlertTime = nil
             }
             updateAlarmMenuButtonImage()
-        }
-    }
-    
-    // MARK: - 즐겨찾기 추후 구현
-    var isFavorite: Bool = false {
-        didSet {
-        
         }
     }
     
@@ -64,6 +59,8 @@ class MainViewController: UIViewController {
         view.backgroundColor = UIColor(red: 0.99, green: 0.97, blue: 0.94, alpha: 1.0)
         memoViewSetting()
         navigationBarSetting()
+        
+        memoView.memoTitle.delegate = self
     }
     
     private func memoViewSetting() {
@@ -271,7 +268,12 @@ class MainViewController: UIViewController {
 }
 
 
-
+extension MainViewController: UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        memoView.memoContents.becomeFirstResponder()  // ← 텍스트뷰로 커서 이동
+        return true
+    }
+}
 
 extension MainViewController: AlertTimeDelegate {
     func didSelectAlertTime(_ date: Date) {
@@ -279,3 +281,4 @@ extension MainViewController: AlertTimeDelegate {
         print("메인 뷰컨에서 알림 시간 설정됨: \(date)")
     }
 }
+
